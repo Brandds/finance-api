@@ -5,10 +5,8 @@
         http://www.liquibase.org/xml/ns/dbchangelog
         http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.0.xsd">
 
-    <changeSet id="001-create-category" author="rafael.brandao">
-
-
-
+    <changeSet id="001-create-users" author="rafael.brandao">
+        <sqlFile path="db/scripts/users/create/create_table.sql" encoding="UTF-8"/>
     </changeSet>
 
 </databaseChangeLog>
