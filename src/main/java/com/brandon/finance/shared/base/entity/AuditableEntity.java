@@ -1,4 +1,4 @@
-package com.brandon.finance.shared.base.Entity;
+package com.brandon.finance.shared.base.entity;
 
 import java.time.LocalDateTime;
 
