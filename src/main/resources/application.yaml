@@ -1,5 +1,25 @@
+server:
+  port: 8081
+
 spring:
-  application:
-    name: finance-api
+  jpa:
+    hibernate:
+      ddl-auto: none
+
   liquibase:
     change-log: classpath:db/changelog/db.changelog-master.xml
+    enabled: true
+
+  mvc:
+    throw-exception-if-no-handler-found: true
+
+  web:
+    resources:
+      add-mappings: false
+
+logging:
+  level:
+    org.springframework.web: WARN
+
+jwt:
+  secret: ${JWT_SECRET:SGVsbG9Xb3JsZFNlY3JldEtleUZvckp3dFRva2VuQXV0aGVudGljYXRpb25QdXJwb3Nlcw==}
