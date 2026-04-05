@@ -15,7 +15,7 @@ import lombok.NoArgsConstructor;
 @Getter
 @Entity
 @Table(name = "users")
-public class Users extends AuditableEntity {
+public class User extends AuditableEntity {
 
      @Column(nullable = false, length = 150)
     private String name;
@@ -30,7 +30,7 @@ public class Users extends AuditableEntity {
     @Column(nullable = false, length = 50)
     private Role role;
 
-    public Users(String name, String email, String password, Role role) {
+    public User(String name, String email, String password, Role role) {
         this.name = name;
         this.email = email;
         this.password = password;
