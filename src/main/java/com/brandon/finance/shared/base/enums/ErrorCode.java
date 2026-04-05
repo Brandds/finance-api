@@ -4,6 +4,7 @@ public enum ErrorCode {
     RESOURCE_NOT_FOUND,
     BUSINESS_ERROR,
     VALIDATION_ERROR,
-    INTERNAL_ERROR
+    INTERNAL_ERROR,
+    UNAUTHORIZED
     
 }
