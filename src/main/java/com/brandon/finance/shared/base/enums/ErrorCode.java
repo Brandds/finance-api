@@ -5,6 +5,7 @@ public enum ErrorCode {
     BUSINESS_ERROR,
     VALIDATION_ERROR,
     INTERNAL_ERROR,
-    UNAUTHORIZED
+    UNAUTHORIZED,
+    FORBIDDEN
     
 }
