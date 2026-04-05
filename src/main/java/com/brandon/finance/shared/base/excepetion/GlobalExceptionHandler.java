@@ -5,6 +5,7 @@ import java.util.stream.Collectors;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.authorization.AuthorizationDeniedException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
@@ -83,6 +84,20 @@ public class GlobalExceptionHandler {
             HttpServletRequest request
     ) {
         return buildError(HttpStatus.UNAUTHORIZED, ex, request);
+    }
+
+
+    @ExceptionHandler(AuthorizationDeniedException.class)
+    public ResponseEntity<ApiError> handleAccessDenied(
+            AuthorizationDeniedException ex,
+            HttpServletRequest request
+    ) {
+        return buildError(
+            HttpStatus.FORBIDDEN,
+            ErrorCode.FORBIDDEN.name(),
+            "Acesso negado",
+            request
+        );
     }
 
     private ResponseEntity<ApiError> buildError(HttpStatus status, BusinessException ex, HttpServletRequest request) {
