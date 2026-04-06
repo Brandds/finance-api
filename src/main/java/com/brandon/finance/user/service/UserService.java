@@ -1,5 +1,7 @@
 package com.brandon.finance.user.service;
 
+import java.util.List;
+
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -39,6 +41,11 @@ public class UserService {
             throw new UnauthorizedException("Você não pode acessar este recurso");
         }
         return userMapper.toResponse(user);
+    }
+
+    public List<UserResponse> getAllUsers() {
+        // TODO Auto-generated method stub
+        throw new UnsupportedOperationException("Unimplemented method 'getAllUsers'");
     }
     
 }

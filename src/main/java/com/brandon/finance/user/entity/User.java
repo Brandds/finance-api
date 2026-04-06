@@ -1,5 +1,9 @@
 package com.brandon.finance.user.entity;
 
+import java.util.List;
+
+import com.brandon.finance.category.entity.Category;
+import com.brandon.finance.expense.entity.Expense;
 import com.brandon.finance.shared.base.entity.AuditableEntity;
 import com.brandon.finance.user.enums.Role;
 
@@ -7,6 +11,7 @@ import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
+import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -29,6 +34,12 @@ public class User extends AuditableEntity {
     @Enumerated(EnumType.STRING)
     @Column(nullable = false, length = 50)
     private Role role;
+
+    @OneToMany(mappedBy = "user")
+    private List<Expense> expenses;
+
+    @OneToMany(mappedBy = "user")
+    private List<Category> categories;
 
     public User(String name, String email, String password, Role role) {
         this.name = name;

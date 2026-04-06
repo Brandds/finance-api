@@ -1,5 +1,7 @@
 package com.brandon.finance.user.controller;
 
+import java.util.List;
+
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -34,6 +36,12 @@ public class UserController {
     public ResponseEntity<ApiResponse<UserResponse>> getUserById(@PathVariable Long id) {
         UserResponse response = userService.getUserById(id);
         return ResponseUtil.ok(response, "Usuario encontrado com sucesso");
+    }
+
+    @GetMapping("/all")
+    public ResponseEntity<ApiResponse<List<UserResponse>>> getAllUsers() {
+        List<UserResponse> response = userService.getAllUsers();
+        return ResponseUtil.ok(response, "Usuarios encontrados com sucesso");
     }
 
 }
