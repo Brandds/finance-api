@@ -7,16 +7,19 @@ import io.swagger.v3.oas.models.OpenAPI;
 import io.swagger.v3.oas.models.info.Info;
 import io.swagger.v3.oas.models.security.SecurityRequirement;
 import io.swagger.v3.oas.models.security.SecurityScheme;
+import io.swagger.v3.oas.models.servers.Server;
 
 
 @Configuration
 public class OpenApiConfig {
 
-      private static final String SECURITY_SCHEME_NAME = "bearerAuth";
+    private static final String SECURITY_SCHEME_NAME = "bearerAuth";
 
     @Bean
     public OpenAPI customOpenAPI() {
         return new OpenAPI()
+                .addServersItem(new Server().url("http://localhost:8081").description("Local"))
+                .addServersItem(new Server().url("http://localhost:8082").description("Local Alternative"))
                 .info(new Info()
                         .title("Finance API")
                         .version("v1")

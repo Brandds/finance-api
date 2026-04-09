@@ -23,3 +23,13 @@ logging:
 
 jwt:
   secret: ${JWT_SECRET:SGVsbG9Xb3JsZFNlY3JldEtleUZvckp3dFRva2VuQXV0aGVudGljYXRpb25QdXJwb3Nlcw==}
+
+springdoc:
+  swagger-ui:
+    enabled: true
+    path: /swagger-ui.html
+    operations-sorter: method
+  api-docs:
+    path: /v3/api-docs
+  show-actuator: false
+  packages-to-scan: com.brandon.finance

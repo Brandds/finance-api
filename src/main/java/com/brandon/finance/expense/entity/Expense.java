@@ -2,10 +2,9 @@ package com.brandon.finance.expense.entity;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 
 import com.brandon.finance.category.entity.Category;
-import com.brandon.finance.shared.base.entity.BaseEntity;
+import com.brandon.finance.shared.base.entity.AuditableEntity;
 import com.brandon.finance.user.entity.User;
 
 import jakarta.persistence.Column;
@@ -21,7 +20,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @Table(name = "expense")
 @Entity
-public class Expense extends BaseEntity {
+public class Expense extends AuditableEntity {
     
     @Column(name = "description", nullable = false)
     private String description;
@@ -39,7 +38,4 @@ public class Expense extends BaseEntity {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "category_id")
     private Category category;
-
-    @Column(name = "created_at")
-    private LocalDateTime createdAt;
 }

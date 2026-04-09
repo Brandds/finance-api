@@ -1,8 +1,7 @@
 package com.brandon.finance.category.entity;
 
-import java.time.LocalDateTime;
 
-import com.brandon.finance.shared.base.entity.BaseEntity;
+import com.brandon.finance.shared.base.entity.AuditableEntity;
 import com.brandon.finance.user.entity.User;
 
 import jakarta.persistence.Column;
@@ -19,7 +18,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @Table(name = "category")
 @Entity
-public class Category extends BaseEntity {
+public class Category extends AuditableEntity {
     
     @Column(name = "name", nullable = false)
     private String name;
@@ -27,7 +26,4 @@ public class Category extends BaseEntity {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
-
-    @Column(name = "created_at", nullable = false, updatable = false)
-    private LocalDateTime createdAt;
 }
