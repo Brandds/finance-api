@@ -16,29 +16,58 @@ import com.brandon.finance.user.request.CreateUserRequest;
 import com.brandon.finance.user.response.UserResponse;
 import com.brandon.finance.user.service.UserService;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 
 @RestController
 @RequestMapping("/users")
 @RequiredArgsConstructor
+@Tag(name = "Users", description = "Operações relacionadas a usuários")
 public class UserController {
     
     private final UserService userService;
 
     @PostMapping("/register")
-    public ResponseEntity<ApiResponse<UserResponse>> create(@RequestBody  @Valid CreateUserRequest request) {
+    @Operation(summary = "Criar novo usuário", description = "Registra um novo usuário no sistema")
+    @ApiResponses(value = {
+        @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "Usuário criado com sucesso",
+            content = @Content(mediaType = "application/json")),
+        @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "400", description = "Dados inválidos"),
+        @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "409", description = "Usuário já existe")
+    })
+    public ResponseEntity<ApiResponse<UserResponse>> create(
+            @RequestBody @Valid CreateUserRequest request) {
         UserResponse response = userService.create(request);
         return ResponseUtil.ok(response, "Usuario criado com sucesso");
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<ApiResponse<UserResponse>> getUserById(@PathVariable Long id) {
+    @Operation(summary = "Obter usuário por ID", description = "Retorna os dados de um usuário específico")
+    @ApiResponses(value = {
+        @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "Usuário encontrado",
+            content = @Content(mediaType = "application/json")),
+        @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "404", description = "Usuário não encontrado"),
+        @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "403", description = "Acesso negado")
+    })
+    public ResponseEntity<ApiResponse<UserResponse>> getUserById(
+            @Parameter(description = "ID do usuário", required = true)
+            @PathVariable Long id) {
         UserResponse response = userService.getUserById(id);
         return ResponseUtil.ok(response, "Usuario encontrado com sucesso");
     }
 
     @GetMapping("/all")
+    @Operation(summary = "Listar todos os usuários", description = "Retorna lista de todos os usuários")
+    @ApiResponses(value = {
+        @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "Lista de usuários retornada",
+            content = @Content(mediaType = "application/json")),
+        @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "403", description = "Acesso negado")
+    })
     public ResponseEntity<ApiResponse<List<UserResponse>>> getAllUsers() {
         List<UserResponse> response = userService.getAllUsers();
         return ResponseUtil.ok(response, "Usuarios encontrados com sucesso");
