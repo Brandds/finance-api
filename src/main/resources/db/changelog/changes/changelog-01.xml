@@ -17,7 +17,7 @@
         <sqlFile path="db/scripts/expense/create/create_table_expense.sql" encoding="UTF-8"/>
     </changeSet>
 
-    <changeSet id="004-create-schema-audit" author="rafael.brandao">
+    <changeSet id="011-create-schema-audit" author="rafael.brandao">
         <sql splitStatements="false">
             <![CDATA[
                 CREATE SCHEMA IF NOT EXISTS audit;
@@ -78,6 +78,58 @@
                 EXECUTE FUNCTION audit.log_changes();
             ]]>
         </sql>
+    </changeSet>
+
+     <changeSet id="004-create-account" author="rafael.brandao">
+        <sqlFile path="db/scripts/account/create/create_table_account.sql" encoding="UTF-8"/>
+    </changeSet>
+
+    <changeSet id="005-create-financial-transaction" author="rafael.brandao">
+        <sqlFile path="db/scripts/financial_transaction/create/create_table_financial_transaction.sql" encoding="UTF-8"/>
+    </changeSet>
+
+    <changeSet id="006-create-budget" author="rafael.brandao">
+        <sqlFile path="db/scripts/budget/create/create_table_budget.sql" encoding="UTF-8"/>
+    </changeSet>
+
+    <changeSet id="007-create-tag" author="rafael.brandao">
+        <sqlFile path="db/scripts/tag/create/create_table_tag.sql" encoding="UTF-8"/>
+    </changeSet>
+
+    <changeSet id="008-create-expense-tag" author="rafael.brandao">
+        <sqlFile path="db/scripts/expense_tag/create/create_table_expense_tag.sql" encoding="UTF-8"/>
+    </changeSet>
+
+    <changeSet id="010-alter-expense-add-account" author="rafael.brandao">
+        <sqlFile path="db/scripts/expense/create/alter_expense_add_account.sql" encoding="UTF-8"/>
+    </changeSet>
+
+    <changeSet id="011-create-trigger-account-audit" author="rafael.brandao">
+        <sqlFile path="db/scripts/account/create/create_trigger_audit.sql" encoding="UTF-8"/>
+    </changeSet>
+
+    <changeSet id="012-create-trigger-financial-transaction-audit" author="rafael.brandao">
+        <sqlFile path="db/scripts/financial_transaction/create/create_trigger_audit.sql" encoding="UTF-8"/>
+    </changeSet>
+
+    <changeSet id="013-create-trigger-budget-audit" author="rafael.brandao">
+        <sqlFile path="db/scripts/budget/create/create_trigger_audit.sql" encoding="UTF-8"/>
+    </changeSet>
+
+    <changeSet id="014-create-trigger-expense-audit" author="rafael.brandao">
+        <sqlFile path="db/scripts/expense/create/create_trigger_audit.sql" encoding="UTF-8"/>
+    </changeSet>
+
+    <changeSet id="015-create-trigger-category-audit" author="rafael.brandao">
+        <sqlFile path="db/scripts/category/create/create_trigger_audit.sql" encoding="UTF-8"/>
+    </changeSet>
+
+    <changeSet id="016-create-trigger-tag-audit" author="rafael.brandao">
+        <sqlFile path="db/scripts/tag/create/create_trigger_audit.sql" encoding="UTF-8"/>
+    </changeSet>
+
+    <changeSet id="017-create-trigger-expense-tag-audit" author="rafael.brandao">
+        <sqlFile path="db/scripts/expense_tag/create/create_trigger_audit.sql" encoding="UTF-8"/>
     </changeSet>
 
 </databaseChangeLog>
