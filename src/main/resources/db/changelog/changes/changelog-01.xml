@@ -143,4 +143,27 @@
     <changeSet id="020_add_column_updated_at_to_account" author="rafael.brandao">
         <sqlFile path="db/scripts/account/alter/add_column_update_at.sql" encoding="UTF-8"/>
     </changeSet>
+
+    <changeSet id="021_add_column_created_at_to_tag" author="rafael.brandao">
+        <sqlFile path="db/scripts/tag/alter/add_column_created_at.sql" encoding="UTF-8"/>
+    </changeSet>
+
+    <changeSet id="022_add_column_updated_at_to_tag" author="rafael.brandao">
+        <sqlFile path="db/scripts/tag/alter/add_column_update_at.sql" encoding="UTF-8"/>
+    </changeSet>
+
+    <changeSet id="023_drop_trigger_expense_tag" author="rafael.brandao">
+        <sqlFile path="db/scripts/tag/delete/drop_trigger.sql" encoding="UTF-8"/>
+    </changeSet>
+
+    <changeSet id="024_drop_all_triggers_expense_tag" author="rafael.brandao">
+        <sql splitStatements="true">
+            DROP TRIGGER IF EXISTS trg_audit_expense_tag ON public.expense_tag CASCADE;
+            DROP TRIGGER IF EXISTS audit_trigger_insert_expense_tag ON public.expense_tag CASCADE;
+            DROP TRIGGER IF EXISTS audit_trigger_update_expense_tag ON public.expense_tag CASCADE;
+            DROP TRIGGER IF EXISTS audit_trigger_delete_expense_tag ON public.expense_tag CASCADE;
+            DROP TRIGGER IF EXISTS audit_trigger ON public.expense_tag CASCADE;
+        </sql>
+    </changeSet>
+
 </databaseChangeLog>
