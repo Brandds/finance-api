@@ -3,6 +3,7 @@ package com.brandon.finance.expense.entity;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 
+import com.brandon.finance.account.entity.Account;
 import com.brandon.finance.category.entity.Category;
 import com.brandon.finance.shared.base.entity.AuditableEntity;
 import com.brandon.finance.user.entity.User;
@@ -15,8 +16,10 @@ import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 @Getter
+@Setter
 @NoArgsConstructor
 @Table(name = "expense")
 @Entity
@@ -38,4 +41,8 @@ public class Expense extends AuditableEntity {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "category_id")
     private Category category;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "account_id")
+    private Account account;
 }

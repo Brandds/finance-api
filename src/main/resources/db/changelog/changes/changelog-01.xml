@@ -132,4 +132,8 @@
         <sqlFile path="db/scripts/expense_tag/create/create_trigger_audit.sql" encoding="UTF-8"/>
     </changeSet>
 
+    <changeSet id="018_alter_expense_add_updated_at" author="rafael.brandao">
+        <sqlFile path="db/scripts/expense/alter/add_column_update_at.sql" encoding="UTF-8"/>
+    </changeSet>
+
 </databaseChangeLog>
