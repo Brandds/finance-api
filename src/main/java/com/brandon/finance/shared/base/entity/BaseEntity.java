@@ -1,5 +1,7 @@
 package com.brandon.finance.shared.base.entity;
 
+import com.fasterxml.jackson.databind.InjectableValues.Base;
+
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
@@ -15,4 +17,9 @@ public abstract class BaseEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+
+    public BaseEntity(Long id) {
+        this.id = id;
+    }
+
 }

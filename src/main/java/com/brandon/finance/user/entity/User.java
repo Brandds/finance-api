@@ -41,6 +41,9 @@ public class User extends AuditableEntity {
     @OneToMany(mappedBy = "user")
     private List<Category> categories;
 
+    public User(Long id){
+        super(id);
+    }
     public User(String name, String email, String password, Role role) {
         this.name = name;
         this.email = email;

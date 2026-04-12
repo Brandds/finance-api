@@ -26,4 +26,8 @@ public class AuditableEntity  extends BaseEntity {
     @Column(nullable = false)
     private LocalDateTime updatedAt;
 
+    public AuditableEntity(Long id) {
+        super(id);
+    }
+
 }

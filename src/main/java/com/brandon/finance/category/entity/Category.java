@@ -26,4 +26,8 @@ public class Category extends AuditableEntity {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
+
+    public Category(Long categoryId) {
+        super(categoryId);
+    }
 }
