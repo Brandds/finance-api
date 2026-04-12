@@ -140,5 +140,7 @@
         <sqlFile path="db/scripts/category/alter/add_column_update_at.sql" encoding="UTF-8"/>
     </changeSet>
 
-
+    <changeSet id="020_add_column_updated_at_to_account" author="rafael.brandao">
+        <sqlFile path="db/scripts/account/alter/add_column_update_at.sql" encoding="UTF-8"/>
+    </changeSet>
 </databaseChangeLog>
