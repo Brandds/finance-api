@@ -1,7 +1,5 @@
 package com.brandon.finance.shared.base.entity;
 
-import com.fasterxml.jackson.databind.InjectableValues.Base;
-
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
