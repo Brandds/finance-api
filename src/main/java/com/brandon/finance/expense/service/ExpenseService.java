@@ -8,6 +8,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.brandon.finance.expense.dto.ExpenseDTO;
 import com.brandon.finance.expense.entity.Expense;
@@ -23,18 +24,21 @@ public class ExpenseService {
     private final ExpenseRepository expenseRepository;
     private final ExpenseMapper expenseMapper;
 
+    @Transactional
     public ExpenseDTO create(ExpenseDTO dto) {
         Expense expense = expenseMapper.toEntity(dto);
         Expense saved = expenseRepository.save(expense);
         return expenseMapper.toDTO(saved);
     }
 
+    @Transactional(readOnly = true)
     public ExpenseDTO getById(Long id) {
         return expenseRepository.findById(id)
             .map(expenseMapper::toDTO)
             .orElse(null);
     }
 
+    @Transactional(readOnly = true)
     public Page<ExpenseDTO> getByUserId(Long userId, Pageable pageable) {
         Page<Expense> expenses = expenseRepository.findByUserId(userId, pageable);
         List<ExpenseDTO> dtos = expenses.getContent()
@@ -44,6 +48,7 @@ public class ExpenseService {
         return new PageImpl<>(dtos, pageable, expenses.getTotalElements());
     }
 
+    @Transactional(readOnly = true)
     public List<ExpenseDTO> getByUserIdAndCategory(Long userId, Long categoryId) {
         return expenseRepository.findByUserIdAndCategoryId(userId, categoryId)
             .stream()
@@ -51,6 +56,7 @@ public class ExpenseService {
             .collect(Collectors.toList());
     }
 
+    @Transactional(readOnly = true)
     public Page<ExpenseDTO> getByUserIdAndDateRange(Long userId, LocalDate startDate, LocalDate endDate, Pageable pageable) {
         Page<Expense> expenses = expenseRepository.findByUserIdAndDateBetween(userId, startDate, endDate, pageable);
         List<ExpenseDTO> dtos = expenses.getContent()
@@ -60,6 +66,7 @@ public class ExpenseService {
         return new PageImpl<>(dtos, pageable, expenses.getTotalElements());
     }
 
+    @Transactional(readOnly = true)
     public List<ExpenseDTO> getByUserIdAndAccount(Long userId, Long accountId) {
         return expenseRepository.findByUserIdAndAccountId(userId, accountId)
             .stream()
@@ -67,6 +74,7 @@ public class ExpenseService {
             .collect(Collectors.toList());
     }
 
+    @Transactional
     public ExpenseDTO update(Long id, ExpenseDTO dto) {
         return expenseRepository.findById(id)
             .map(expense -> {
@@ -79,6 +87,7 @@ public class ExpenseService {
             .orElse(null);
     }
 
+    @Transactional
     public void delete(Long id) {
         expenseRepository.deleteById(id);
     }
