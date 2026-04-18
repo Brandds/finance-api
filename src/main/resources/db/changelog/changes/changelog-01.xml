@@ -152,11 +152,15 @@
         <sqlFile path="db/scripts/tag/alter/add_column_update_at.sql" encoding="UTF-8"/>
     </changeSet>
 
-    <changeSet id="023_drop_trigger_expense_tag" author="rafael.brandao">
+    <changeSet id="023_add_column_updated_at_to_financial_transaction" author="rafael.brandao">
+        <sqlFile path="db/scripts/financial_transaction/alter/add_column_updated_at.sql" encoding="UTF-8"/>
+    </changeSet>
+
+    <changeSet id="024_drop_trigger_expense_tag" author="rafael.brandao">
         <sqlFile path="db/scripts/tag/delete/drop_trigger.sql" encoding="UTF-8"/>
     </changeSet>
 
-    <changeSet id="024_drop_all_triggers_expense_tag" author="rafael.brandao">
+    <changeSet id="025_drop_all_triggers_expense_tag" author="rafael.brandao">
         <sql splitStatements="true">
             DROP TRIGGER IF EXISTS trg_audit_expense_tag ON public.expense_tag CASCADE;
             DROP TRIGGER IF EXISTS audit_trigger_insert_expense_tag ON public.expense_tag CASCADE;
