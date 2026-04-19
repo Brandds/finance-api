@@ -1,10 +1,11 @@
 server:
-  port: 8082
+  port: 8081
 
 spring:
   jpa:
     hibernate:
       ddl-auto: none
+    show-sql: false
 
   liquibase:
     change-log: classpath:db/changelog/db.changelog-master.xml
