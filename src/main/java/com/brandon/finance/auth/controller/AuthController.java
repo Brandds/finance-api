@@ -21,12 +21,15 @@ import lombok.RequiredArgsConstructor;
 @RestController
 @RequestMapping("/auth")
 @RequiredArgsConstructor
-@Tag(name = "Auth", description = "Operações de autenticação")
+@Tag(name = "Auth", description = "Operações de autenticação - suporta Login Tradicional e OAuth2 (Google)")
 public class AuthController {
     private final AuthService authService;
 
     @PostMapping("/login")
-    @Operation(summary = "Realizar login", description = "Autentica o usuário e retorna um token JWT")
+    @Operation(
+        summary = "Login com email e senha",
+        description = "Autentica o usuário com email e senha, retornando um token JWT. Para Login com Google OAuth2, use /auth/google/login"
+    )
     @ApiResponses(value = {
         @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "Login realizado com sucesso",
             content = @Content(mediaType = "application/json")),

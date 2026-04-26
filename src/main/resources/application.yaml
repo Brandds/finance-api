@@ -1,15 +1,21 @@
-server:
-  port: 8081
-
 spring:
+  datasource:
+    url: ${SPRING_DATASOURCE_URL}
+    username: ${SPRING_DATASOURCE_USERNAME}
+    password: ${SPRING_DATASOURCE_PASSWORD}
+
+  sql:
+    init:
+      mode: never
+
   jpa:
     hibernate:
       ddl-auto: none
     show-sql: false
 
   liquibase:
-    change-log: classpath:db/changelog/db.changelog-master.xml
     enabled: true
+    change-log: classpath:db/changelog/db.changelog-master.xml
 
   mvc:
     throw-exception-if-no-handler-found: true
@@ -18,19 +24,24 @@ spring:
     resources:
       add-mappings: false
 
-logging:
-  level:
-    org.springframework.web: WARN
+  security:
+    oauth2:
+      client:
+        registration:
+          google:
+            client-id: xxx
+            client-secret: xxx
+            redirect-uri: http://localhost:8082/auth/oauth2/callback
+            scope: openid,email,profile
+
+server:
+  port: 8082
 
 jwt:
-  secret: ${JWT_SECRET:SGVsbG9Xb3JsZFNlY3JldEtleUZvckp3dFRva2VuQXV0aGVudGljYXRpb25QdXJwb3Nlcw==}
+  secret: ${JWT_SECRET}
 
-springdoc:
-  swagger-ui:
-    enabled: true
-    path: /swagger-ui.html
-    operations-sorter: method
-  api-docs:
-    path: /v3/api-docs
-  show-actuator: false
-  packages-to-scan: com.brandon.finance
+google:
+  oauth:
+    client-id: xxx
+    client-secret: xxx
+    redirect-uri: http://localhost:8082/auth/oauth2/callback

@@ -1,3 +1,4 @@
+<?xml version="1.0" encoding="UTF-8"?>
 <databaseChangeLog
   xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
@@ -6,7 +7,8 @@
     http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.0.xsd"
   >
 
-  <include file="db/changelog/changes/changelog-01.xml"/>
-  <include file="db/changelog/changes/changelog-02.xml"/>
+  <changeSet id="002-add-google-oauth-support" author="brandon">
+    <sqlFile path="db/scripts/users/alter/add_google_oauth_columns.sql" encoding="UTF-8"/>
+  </changeSet>
 
 </databaseChangeLog>

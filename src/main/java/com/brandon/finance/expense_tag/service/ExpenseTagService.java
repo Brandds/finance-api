@@ -16,8 +16,8 @@ import com.brandon.finance.expense_tag.entity.ExpenseTag;
 import com.brandon.finance.expense_tag.entity.ExpenseTagId;
 import com.brandon.finance.expense_tag.mapper.ExpenseTagMapper;
 import com.brandon.finance.expense_tag.repository.ExpenseTagRepository;
-import com.brandon.finance.expense_tag.repository.TagRepository;
 import com.brandon.finance.tag.entity.Tag;
+import com.brandon.finance.tag.repository.TagRepository;
 
 import lombok.RequiredArgsConstructor;
 

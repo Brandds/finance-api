@@ -6,5 +6,11 @@ public record UserResponse(
     Long id,
     String name,
     String email,
-    Role role
-) {}
+    Role role,
+    String oauthProvider,
+    String displayPicture
+) {
+    public UserResponse(Long id, String name, String email, Role role) {
+        this(id, name, email, role, null, null);
+    }
+}
