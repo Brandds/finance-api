@@ -35,7 +35,7 @@ spring:
             scope: openid,email,profile
 
 server:
-  port: 8082
+  port: 8081
 
 jwt:
   secret: ${JWT_SECRET}

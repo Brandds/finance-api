@@ -15,7 +15,8 @@ public class UserMapper {
             request.name(),
             request.email(),
             encodedPassword,
-            Role.USER
+            Role.USER,
+            request.cpf()
         );
     }
 

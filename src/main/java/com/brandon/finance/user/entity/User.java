@@ -52,14 +52,18 @@ public class User extends AuditableEntity {
     @OneToMany(mappedBy = "user")
     private List<Category> categories;
 
+    @Column(nullable = false, unique = true, length = 11)
+    private String cpf;
+
     public User(Long id){
         super(id);
     }
-    public User(String name, String email, String password, Role role) {
+    public User(String name, String email, String password, Role role, String cpf) {
         this.name = name;
         this.email = email;
         this.password = password;
         this.role = role;
+        this.cpf = cpf;
     }
 
     public void updatePassword(String encodedPassword) {

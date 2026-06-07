@@ -11,4 +11,8 @@
     <sqlFile path="db/scripts/users/alter/add_google_oauth_columns.sql" encoding="UTF-8"/>
   </changeSet>
 
+  <changeSet id="003-add-column-cpf" author="brandon">
+    <sqlFile path="db/scripts/users/alter/add_column_cpf.sql" encoding="UTF-8"/>
+  </changeSet>
+
 </databaseChangeLog>
