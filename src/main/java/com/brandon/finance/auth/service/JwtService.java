@@ -6,8 +6,11 @@ import java.util.Date;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
+import com.brandon.finance.shared.base.enums.ErrorCode;
+import com.brandon.finance.shared.base.excepetion.UnauthorizedException;
 import com.brandon.finance.user.entity.User;
 
+import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.io.Decoders;
@@ -49,5 +52,25 @@ public class JwtService {
                 .parseClaimsJws(token)
                 .getBody()
                 .get("role", String.class);
+    }
+
+    public void validateToken(String token) {
+
+        try {
+
+            extractEmail(token);
+
+        } catch (ExpiredJwtException e) {
+
+            throw new UnauthorizedException(
+                    ErrorCode.TOKEN_EXPIRED,
+                    "Sessão expirada");
+
+        } catch (Exception e) {
+
+            throw new UnauthorizedException(
+                    ErrorCode.INVALID_TOKEN,
+                    "Token inválido");
+        }
     }
 }

@@ -8,9 +8,10 @@ public record UserResponse(
     String email,
     Role role,
     String oauthProvider,
-    String displayPicture
+    String displayPicture,
+    String cpf
 ) {
-    public UserResponse(Long id, String name, String email, Role role) {
-        this(id, name, email, role, null, null);
+    public UserResponse(Long id, String name, String email, Role role, String cpf) {
+        this(id, name, email, role, null, null, cpf);
     }
 }

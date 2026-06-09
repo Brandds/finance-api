@@ -12,6 +12,7 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 
 import com.brandon.finance.auth.security.JwtFilter;
 import com.brandon.finance.shared.base.excepetion.CustomAccessDeniedHandler;
+import com.brandon.finance.shared.base.excepetion.CustomAuthenticationEntryPoint;
 
 import lombok.RequiredArgsConstructor;
 
@@ -23,6 +24,7 @@ public class SecurityConfig {
 
     private final JwtFilter jwtFilter;
     private final CustomAccessDeniedHandler customAccessDeniedHandler;
+    private final CustomAuthenticationEntryPoint customAuthenticationEntryPoint;
 
     @Bean
     public PasswordEncoder passwordEncoder() {
@@ -45,7 +47,8 @@ public class SecurityConfig {
                 .anyRequest().authenticated()
             )
             .exceptionHandling(ex -> ex
-                    .accessDeniedHandler(customAccessDeniedHandler) // 🔥 aqui
+                .authenticationEntryPoint(customAuthenticationEntryPoint)
+                .accessDeniedHandler(customAccessDeniedHandler)
             )
             .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class);
 

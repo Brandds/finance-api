@@ -91,4 +91,17 @@ public class UserController {
         return ResponseUtil.ok(response, "Usuario atualizado com sucesso");
     }
 
+    @GetMapping("/me")
+    @Operation(summary = "Obter dados do usuário autenticado", description = "Retorna os dados do usuário atualmente autenticado")
+    @ApiResponses(value = {
+        @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "Dados do usuário retornados com sucesso",
+            content = @Content(mediaType = "application/json")),
+        @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "401", description = "Usuário não autenticado"),
+        @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "403", description = "Acesso negado")
+    })
+    public ResponseEntity<ApiResponse<UserResponse>> getCurrentUser() {
+        UserResponse response = userService.getCurrentUser();
+        return ResponseUtil.ok(response, "Dados do usuário retornados com sucesso");
+    }    
+
 }

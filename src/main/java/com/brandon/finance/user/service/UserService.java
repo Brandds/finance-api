@@ -52,5 +52,14 @@ public class UserService {
         // TODO Auto-generated method stub
         throw new UnsupportedOperationException("Unimplemented method 'updateUser'");
     }
+
+    public UserResponse getCurrentUser() {
+        var userLoggin = SecurityUtils.getAuthenticatedUser();
+        var user = userRepository.findById(userLoggin.getId())
+            .orElseThrow(() -> new ResourceNotFoundException("Usuario não encontrado"));
+        return userMapper.toResponse(user);
+    }
+
+
     
 }

@@ -6,6 +6,8 @@ public enum ErrorCode {
     VALIDATION_ERROR,
     INTERNAL_ERROR,
     UNAUTHORIZED,
-    FORBIDDEN
+    FORBIDDEN,
+    TOKEN_EXPIRED,
+    INVALID_TOKEN
     
 }
