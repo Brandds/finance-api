@@ -3,6 +3,7 @@ package com.brandon.finance.shared.base.excepetion;
 import java.time.LocalDateTime;
 import java.util.stream.Collectors;
 
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authorization.AuthorizationDeniedException;
@@ -99,6 +100,33 @@ public class GlobalExceptionHandler {
             request
         );
     }
+    @ExceptionHandler(DataIntegrityViolationException.class)
+    public ResponseEntity<ApiError> handleDataIntegrityViolation(
+            DataIntegrityViolationException ex,
+            HttpServletRequest request
+    ) {
+
+        String message = "Dados já cadastrados";
+
+        String cause = ex.getMostSpecificCause().getMessage();
+
+        if (cause != null) {
+            if (cause.contains("users_cpf_key")) {
+                message = "CPF já cadastrado";
+            } else if (cause.contains("users_email_key")) {
+                message = "E-mail já cadastrado";
+            }
+        }
+
+        return buildError(
+                HttpStatus.CONFLICT,
+                ErrorCode.CONFLICT.name(),
+                message,
+                request
+        );
+    }
+
+    
 
     private ResponseEntity<ApiError> buildError(HttpStatus status, BusinessException ex, HttpServletRequest request) {
         ApiError error = new ApiError(

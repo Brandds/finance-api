@@ -8,6 +8,7 @@ public enum ErrorCode {
     UNAUTHORIZED,
     FORBIDDEN,
     TOKEN_EXPIRED,
-    INVALID_TOKEN
+    INVALID_TOKEN, 
+    CONFLICT
     
 }

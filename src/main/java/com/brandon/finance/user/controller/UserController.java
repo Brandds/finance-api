@@ -41,10 +41,10 @@ public class UserController {
         @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "400", description = "Dados inválidos"),
         @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "409", description = "Usuário já existe")
     })
-    public ResponseEntity<ApiResponse<UserResponse>> create(
+    public ResponseEntity<ApiResponse<Void>> create(
             @RequestBody @Valid CreateUserRequest request) {
-        UserResponse response = userService.create(request);
-        return ResponseUtil.ok(response, "Usuario criado com sucesso");
+        userService.create(request);
+        return ResponseUtil.created(null, "Usuario criado com sucesso");
     }
 
     @GetMapping("/{id}")
