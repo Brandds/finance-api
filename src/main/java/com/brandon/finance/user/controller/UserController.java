@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.RestController;
 import com.brandon.finance.shared.base.response.ApiResponse;
 import com.brandon.finance.shared.base.response.ResponseUtil;
 import com.brandon.finance.user.request.CreateUserRequest;
+import com.brandon.finance.user.response.UserEditResponse;
 import com.brandon.finance.user.response.UserResponse;
 import com.brandon.finance.user.service.UserService;
 
@@ -86,7 +87,7 @@ public class UserController {
     public ResponseEntity<ApiResponse<UserResponse>> updateUser(
             @Parameter(description = "ID do usuário", required = true)
             @PathVariable Long id,
-            @RequestBody @Valid CreateUserRequest request) {
+            @RequestBody @Valid UserEditResponse request) {
         UserResponse response = userService.updateUser(id, request);
         return ResponseUtil.ok(response, "Usuario atualizado com sucesso");
     }
@@ -102,6 +103,20 @@ public class UserController {
     public ResponseEntity<ApiResponse<UserResponse>> getCurrentUser() {
         UserResponse response = userService.getCurrentUser();
         return ResponseUtil.ok(response, "Dados do usuário retornados com sucesso");
-    }    
+    }  
+    
+    @PutMapping("/me")
+    @Operation(summary = "Atualizar usuário autenticado", description = "Atualiza os dados do usuário atualmente autenticado")
+    @ApiResponses(value = {
+        @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "Usuário atualizado com sucesso",
+            content = @Content(mediaType = "application/json")),
+        @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "400", description = "Dados inválidos"),
+        @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "404", description = "Usuário não encontrado"),
+        @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "403", description = "Acesso negado")
+    })
+    public ResponseEntity<ApiResponse<UserResponse>> updateUserLogged(@RequestBody @Valid UserEditResponse request) {
+        UserResponse response = userService.updateUserLogged(request);
+        return ResponseUtil.ok(response, "Usuario atualizado com sucesso");
+    }
 
 }

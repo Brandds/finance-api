@@ -11,6 +11,7 @@ import com.brandon.finance.shared.base.excepetion.UnauthorizedException;
 import com.brandon.finance.user.mapper.UserMapper;
 import com.brandon.finance.user.repository.UserRepository;
 import com.brandon.finance.user.request.CreateUserRequest;
+import com.brandon.finance.user.response.UserEditResponse;
 import com.brandon.finance.user.response.UserResponse;
 
 import lombok.RequiredArgsConstructor;
@@ -48,7 +49,13 @@ public class UserService {
         throw new UnsupportedOperationException("Unimplemented method 'getAllUsers'");
     }
 
-    public UserResponse updateUser(Long id, CreateUserRequest request) {
+    public UserResponse updateUserLogged(UserEditResponse request) {
+        var userLoggin = SecurityUtils.getAuthenticatedUser();
+        userRepository.save(userMapper.toEntityEdit(userLoggin, request));
+        return userMapper.toResponseEdit(userLoggin, request);
+    }
+
+    public UserResponse updateUser(Long id, UserEditResponse request) {
         // TODO Auto-generated method stub
         throw new UnsupportedOperationException("Unimplemented method 'updateUser'");
     }
