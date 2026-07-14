@@ -15,4 +15,8 @@
     <sqlFile path="db/scripts/users/alter/add_column_cpf.sql" encoding="UTF-8"/>
   </changeSet>
 
+  <changeSet id="004-add_column_enabled" author="brandon">
+    <sqlFile path="db/scripts/users/alter/add_column_enabled.sql" encoding="UTF-8"/>
+  </changeSet>
+
 </databaseChangeLog>
