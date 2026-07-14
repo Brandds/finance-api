@@ -19,4 +19,8 @@
     <sqlFile path="db/scripts/users/alter/add_column_enabled.sql" encoding="UTF-8"/>
   </changeSet>
 
+  <changeSet id="005-create-table-email-verification-token" author="brandon">
+    <sqlFile path="db/scripts/email/email_verification_token/create/create_table_email_verification_token.sql" encoding="UTF-8"/>
+  </changeSet>  
+
 </databaseChangeLog>
