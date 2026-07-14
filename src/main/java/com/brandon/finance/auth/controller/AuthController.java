@@ -1,14 +1,17 @@
 package com.brandon.finance.auth.controller;
 
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.brandon.finance.auth.dto.LoginRequest;
 import com.brandon.finance.auth.dto.LoginResponse;
 import com.brandon.finance.auth.service.AuthService;
+import com.brandon.finance.email.service.EmailVerificationTokenService;
 import com.brandon.finance.shared.base.response.ApiResponse;
 import com.brandon.finance.shared.base.response.ResponseUtil;
 
@@ -24,6 +27,7 @@ import lombok.RequiredArgsConstructor;
 @Tag(name = "Auth", description = "Operações de autenticação - suporta Login Tradicional e OAuth2 (Google)")
 public class AuthController {
     private final AuthService authService;
+    private final EmailVerificationTokenService emailVerificationTokenService;
 
     @PostMapping("/login")
     @Operation(
@@ -38,5 +42,21 @@ public class AuthController {
     })
     public ResponseEntity<ApiResponse<LoginResponse>> login(@RequestBody LoginRequest request) {
         return ResponseUtil.ok(authService.login(request), "Login realizado com sucesso");
+    }
+
+    @GetMapping("/verify-email")
+    @Operation(
+        summary = "Verificar e-mail",
+        description = "Verifica o e-mail do usuário"
+    )
+    @ApiResponses(value = {
+        @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "E-mail verificado com sucesso",
+            content = @Content(mediaType = "application/json")),
+        @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "400", description = "Token inválido"),
+        @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "404", description = "Usuário não encontrado")
+    })
+    public ResponseEntity<ApiResponse<Void>> verifyEmail(@RequestParam String token) {
+        emailVerificationTokenService.verifyEmail(token);
+        return ResponseUtil.ok(null, "E-mail verificado com sucesso");
     }
 }

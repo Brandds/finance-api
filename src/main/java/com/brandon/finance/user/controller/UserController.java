@@ -37,7 +37,7 @@ public class UserController {
     @PostMapping("/register")
     @Operation(summary = "Criar novo usuário", description = "Registra um novo usuário no sistema")
     @ApiResponses(value = {
-        @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "Usuário criado com sucesso",
+        @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "Verificação de e-mail enviada com sucesso. Por favor, verifique sua caixa de entrada.",
             content = @Content(mediaType = "application/json")),
         @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "400", description = "Dados inválidos"),
         @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "409", description = "Usuário já existe")
@@ -45,7 +45,7 @@ public class UserController {
     public ResponseEntity<ApiResponse<Void>> create(
             @RequestBody @Valid CreateUserRequest request) {
         userService.create(request);
-        return ResponseUtil.created(null, "Usuario criado com sucesso");
+        return ResponseUtil.created(null, "Verificação de e-mail enviada com sucesso. Por favor, verifique sua caixa de entrada.");
     }
 
     @GetMapping("/{id}")

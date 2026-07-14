@@ -13,12 +13,14 @@ import jakarta.persistence.FetchType;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
+import lombok.Getter;
 import lombok.Setter;
 
 @Setter
+@Getter
 @Entity
 @Table(name = "email_verification_token")
-public class EmailVerificaitonToken extends BaseEntity {
+public class EmailVerificationToken extends BaseEntity {
     
     @Column(nullable = false, unique = true, length = 255)
     private String token;
@@ -28,13 +30,14 @@ public class EmailVerificaitonToken extends BaseEntity {
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
 
-    @Column(nullable = false)
-    private LocalDateTime expires_at;
+    @Column(name = "expires_at", nullable = false)
+    private LocalDateTime expiresAt;
 
-    @Column(nullable = false)
+    @Column(name = "used", nullable = false)
     private boolean used = false;
 
     @CreationTimestamp
-    @Column(nullable = false)
-    private LocalDateTime created_at;
+    @Column(name = "created_at", nullable = false)
+    private LocalDateTime createdAt;
+    
 }
