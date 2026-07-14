@@ -9,6 +9,7 @@ public enum ErrorCode {
     FORBIDDEN,
     TOKEN_EXPIRED,
     INVALID_TOKEN, 
-    CONFLICT
+    CONFLICT,
+    EMAIL_NOT_VERIFIED
     
 }

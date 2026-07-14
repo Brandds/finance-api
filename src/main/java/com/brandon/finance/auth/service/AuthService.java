@@ -5,6 +5,7 @@ import org.springframework.stereotype.Service;
 
 import com.brandon.finance.auth.dto.LoginRequest;
 import com.brandon.finance.auth.dto.LoginResponse;
+import com.brandon.finance.auth.helper.AuthHelper;
 import com.brandon.finance.shared.base.excepetion.ResourceNotFoundException;
 import com.brandon.finance.shared.base.excepetion.UnauthorizedException;
 import com.brandon.finance.user.entity.User;
@@ -21,15 +22,14 @@ public class AuthService {
     private final PasswordEncoder passwordEncoder;
     private final JwtService jwtService;
     private final UserMapper userMapper;
+    private final AuthHelper authHelper;
 
     public LoginResponse login(LoginRequest request) {
 
         User user = userRepository.findByEmail(request.email())
             .orElseThrow(() -> new ResourceNotFoundException("Usuário não encontrado"));
 
-        if (!passwordEncoder.matches(request.password(), user.getPassword())) {
-            throw new UnauthorizedException("Credenciais inválidas");
-        }
+        authHelper.validarLogin(request, user);
 
         String token = jwtService.generateToken(user);
 
