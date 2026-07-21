@@ -5,8 +5,8 @@ import java.util.List;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
-import com.brandon.finance.email.service.EmailServiceImpl;
-import com.brandon.finance.email.service.EmailVerificationTokenService;
+import com.brandon.finance.email.service.impl.EmailServiceImpl;
+import com.brandon.finance.email.service.impl.EmailVerificationTokenServiceImpl;
 import com.brandon.finance.helper.SecurityUtils;
 import com.brandon.finance.helper.TokenUtils;
 import com.brandon.finance.shared.base.excepetion.ResourceNotFoundException;
@@ -27,7 +27,7 @@ public class UserService {
     private final UserMapper userMapper;
     private final PasswordEncoder passwordEncoder;
     private final EmailServiceImpl emailService;
-    private final EmailVerificationTokenService emailVerificationTokenService;
+    private final EmailVerificationTokenServiceImpl emailVerificationTokenService;
 
     public UserResponse create(CreateUserRequest request) {
         

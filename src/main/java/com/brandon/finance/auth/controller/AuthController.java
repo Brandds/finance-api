@@ -11,7 +11,7 @@ import org.springframework.web.bind.annotation.RestController;
 import com.brandon.finance.auth.dto.LoginRequest;
 import com.brandon.finance.auth.dto.LoginResponse;
 import com.brandon.finance.auth.service.AuthService;
-import com.brandon.finance.email.service.EmailVerificationTokenService;
+import com.brandon.finance.email.service.impl.EmailVerificationTokenServiceImpl;
 import com.brandon.finance.shared.base.response.ApiResponse;
 import com.brandon.finance.shared.base.response.ResponseUtil;
 
@@ -27,7 +27,7 @@ import lombok.RequiredArgsConstructor;
 @Tag(name = "Auth", description = "Operações de autenticação - suporta Login Tradicional e OAuth2 (Google)")
 public class AuthController {
     private final AuthService authService;
-    private final EmailVerificationTokenService emailVerificationTokenService;
+    private final EmailVerificationTokenServiceImpl emailVerificationTokenService;
 
     @PostMapping("/login")
     @Operation(

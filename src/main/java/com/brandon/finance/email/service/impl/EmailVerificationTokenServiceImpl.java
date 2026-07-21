@@ -1,4 +1,4 @@
-package com.brandon.finance.email.service;
+package com.brandon.finance.email.service.impl;
 
 import java.time.LocalDateTime;
 
@@ -17,7 +17,7 @@ import lombok.RequiredArgsConstructor;
 
 @Service
 @RequiredArgsConstructor
-public class EmailVerificationTokenService {
+public class EmailVerificationTokenServiceImpl {
 
     private final EmailVerificationTokenRepository emailVerificationTokenRepository;
     private final EmailVerificationTokenMapper emailVerificationTokenMapper;

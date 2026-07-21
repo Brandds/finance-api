@@ -1,4 +1,4 @@
-package com.brandon.finance.email.service.impl;
+package com.brandon.finance.email.service;
 
 import com.brandon.finance.user.entity.User;
 
