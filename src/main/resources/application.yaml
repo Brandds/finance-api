@@ -33,6 +33,17 @@ spring:
             client-secret: xxx
             redirect-uri: http://localhost:8082/auth/oauth2/callback
             scope: openid,email,profile
+  mail:
+    host: ${MAIL_HOST}
+    port: ${MAIL_PORT}
+    username: ${MAIL_USERNAME}
+    password: ${MAIL_PASSWORD}
+    properties:
+      mail:
+        smtp:
+          auth: true
+          starttls:
+            enable: true
 
 server:
   port: 8082
