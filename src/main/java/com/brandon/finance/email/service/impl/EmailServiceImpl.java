@@ -20,8 +20,9 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class EmailServiceImpl  implements EmailService {
 
-    @Value("${app.frontend-url}")
-    private String frontendUrl;
+    @Value("${app.api-url}")
+    private String apiUrl;
+    private final String verificationEmail = "/auth/verify-email?token=";
     
     private final JavaMailSender mailSender;
     private final EmailTemplateServiceImpl templateService;
@@ -29,7 +30,7 @@ public class EmailServiceImpl  implements EmailService {
     @Override
     public void sendVerificationEmail(User user, String token) {
 
-        String url = frontendUrl + "/verify?token=" + token;
+        String url = apiUrl + verificationEmail +   token;
 
         Map<String, Object> variables = Map.of(
                 "name", user.getName(),
