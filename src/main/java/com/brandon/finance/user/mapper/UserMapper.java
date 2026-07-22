@@ -3,6 +3,7 @@ package com.brandon.finance.user.mapper;
 
 import org.springframework.stereotype.Component;
 
+import com.brandon.finance.shared.Utils.CpfUtils;
 import com.brandon.finance.user.entity.User;
 import com.brandon.finance.user.enums.Role;
 import com.brandon.finance.user.request.CreateUserRequest;
@@ -17,7 +18,7 @@ public class UserMapper {
             request.email(),
             encodedPassword,
             Role.USER,
-            request.cpf()
+            CpfUtils.normalize(request.cpf())
         );
     }
 
