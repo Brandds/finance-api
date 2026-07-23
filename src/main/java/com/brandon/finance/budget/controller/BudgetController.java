@@ -19,6 +19,7 @@ import com.brandon.finance.budget.dto.BudgetDTO;
 import com.brandon.finance.budget.service.BudgetService;
 import com.brandon.finance.shared.base.response.ApiResponse;
 import com.brandon.finance.shared.base.response.ResponseUtil;
+import com.brandon.finance.shared.constants.ApiPaths;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -26,7 +27,7 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 
 @RestController
-@RequestMapping("/budgets")
+@RequestMapping(ApiPaths.BUDGETS)
 @RequiredArgsConstructor
 @Tag(name = "Budgets", description = "Operações relacionadas a orçamentos")
 public class BudgetController {

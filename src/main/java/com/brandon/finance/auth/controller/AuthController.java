@@ -21,8 +21,10 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 
+import com.brandon.finance.shared.constants.ApiPaths;
+
 @RestController
-@RequestMapping("/auth")
+@RequestMapping(ApiPaths.AUTH)
 @RequiredArgsConstructor
 @Tag(name = "Auth", description = "Operações de autenticação - suporta Login Tradicional e OAuth2 (Google)")
 public class AuthController {

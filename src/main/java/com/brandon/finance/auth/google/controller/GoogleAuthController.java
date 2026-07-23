@@ -5,8 +5,10 @@ import org.springframework.web.bind.annotation.RestController;
 
 import lombok.RequiredArgsConstructor;
 
+import com.brandon.finance.shared.constants.ApiPaths;
+
 @RestController
-@RequestMapping("/auth/google")
+@RequestMapping(ApiPaths.AUTH_GOOGLE)
 @RequiredArgsConstructor
 public class GoogleAuthController {
     

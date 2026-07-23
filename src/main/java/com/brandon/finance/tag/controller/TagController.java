@@ -13,8 +13,10 @@ import com.brandon.finance.shared.base.response.ApiResponse;
 import com.brandon.finance.shared.base.response.ResponseUtil;
 import java.util.List;
 
+import com.brandon.finance.shared.constants.ApiPaths;
+
 @RestController
-@RequestMapping("/api/v1/tags")
+@RequestMapping(ApiPaths.TAGS)
 @Tag(name = "Tag", description = "Endpoints para gerenciar tags")
 public class TagController {
 

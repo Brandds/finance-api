@@ -15,13 +15,14 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.brandon.finance.log.response.AuditLogResponse;
 import com.brandon.finance.log.service.AuditLogService;
+import com.brandon.finance.shared.constants.ApiPaths;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 
 @RestController
-@RequestMapping("/audit-logs")
+@RequestMapping(ApiPaths.AUDIT_LOGS)
 @RequiredArgsConstructor
 @Tag(name = "Audit Logs", description = "Endpoints para consultar logs de auditoria")
 public class AuditLogController {

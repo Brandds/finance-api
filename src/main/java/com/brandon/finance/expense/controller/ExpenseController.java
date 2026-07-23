@@ -27,8 +27,10 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 
+import com.brandon.finance.shared.constants.ApiPaths;
+
 @RestController
-@RequestMapping("/expenses")
+@RequestMapping(ApiPaths.EXPENSES)
 @RequiredArgsConstructor
 @Tag(name = "Expenses", description = "Operações relacionadas a despesas")
 public class ExpenseController {

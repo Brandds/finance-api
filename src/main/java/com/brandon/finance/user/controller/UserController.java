@@ -26,8 +26,10 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 
+import com.brandon.finance.shared.constants.ApiPaths;
+
 @RestController
-@RequestMapping("/users")
+@RequestMapping(ApiPaths.USERS)
 @RequiredArgsConstructor
 @Tag(name = "Users", description = "Operações relacionadas a usuários")
 public class UserController {

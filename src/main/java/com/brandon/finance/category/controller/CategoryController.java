@@ -25,8 +25,10 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 
+import com.brandon.finance.shared.constants.ApiPaths;
+
 @RestController
-@RequestMapping("/categorys")
+@RequestMapping(ApiPaths.CATEGORIES)
 @RequiredArgsConstructor
 @Tag(name = "Categorys", description = "Operações relacionadas a categorias")
 public class CategoryController {
