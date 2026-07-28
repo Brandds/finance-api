@@ -13,6 +13,7 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 import com.brandon.finance.auth.security.JwtFilter;
 import com.brandon.finance.shared.base.excepetion.CustomAccessDeniedHandler;
 import com.brandon.finance.shared.base.excepetion.CustomAuthenticationEntryPoint;
+import com.brandon.finance.shared.constants.ApiPaths;
 
 import lombok.RequiredArgsConstructor;
 
@@ -38,7 +39,7 @@ public class SecurityConfig {
         http
             .csrf(csrf -> csrf.disable())
             .authorizeHttpRequests(auth -> auth
-                .requestMatchers("/users/register","/auth/verify-email", "/auth/login").permitAll()
+                .requestMatchers(ApiPaths.USERS + "/register", ApiPaths.AUTH + "/verify-email", ApiPaths.AUTH + "/login").permitAll()
                 .requestMatchers(
                     "/v3/api-docs/**",
                     "/swagger-ui/**",
