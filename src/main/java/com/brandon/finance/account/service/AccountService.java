@@ -14,6 +14,7 @@ import com.brandon.finance.account.entity.Account;
 import com.brandon.finance.account.entity.Account.AccountType;
 import com.brandon.finance.account.mapper.AccountMapper;
 import com.brandon.finance.account.repository.AccountRepository;
+import com.brandon.finance.authentication.service.AuthenticatedUserService;
 
 import lombok.RequiredArgsConstructor;
 
@@ -23,6 +24,8 @@ public class AccountService {
 
     private final AccountRepository accountRepository;
     private final AccountMapper accountMapper;
+    private final AuthenticatedUserService authenticationService;
+
 
     @Transactional
     public AccountDTO create(AccountDTO dto) {
@@ -39,8 +42,8 @@ public class AccountService {
     }
 
     @Transactional(readOnly = true)
-    public Page<AccountDTO> getByUserId(Long userId, Pageable pageable) {
-        Page<Account> accounts = accountRepository.findByUserId(userId, pageable);
+    public Page<AccountDTO> getAllPage(Pageable pageable) {
+        Page<Account> accounts = accountRepository.findByUserId(authenticationService.getUserId(), pageable);
         List<AccountDTO> dtos = accounts.getContent()
             .stream()
             .map(accountMapper::toDTO)
@@ -49,24 +52,24 @@ public class AccountService {
     }
 
     @Transactional(readOnly = true)
-    public List<AccountDTO> getByUserIdList(Long userId) {
-        return accountRepository.findByUserId(userId)
+    public List<AccountDTO> getAll() {
+        return accountRepository.findByUserId(authenticationService.getUserId())
             .stream()
             .map(accountMapper::toDTO)
             .collect(Collectors.toList());
     }
 
     @Transactional(readOnly = true)
-    public List<AccountDTO> getByUserIdAndType(Long userId, AccountType type) {
-        return accountRepository.findByUserIdAndType(userId, type)
+    public List<AccountDTO> getByType(AccountType type) {
+        return accountRepository.findByUserIdAndType(authenticationService.getUserId(), type)
             .stream()
             .map(accountMapper::toDTO)
             .collect(Collectors.toList());
     }
 
     @Transactional(readOnly = true)
-    public AccountDTO getByUserIdAndName(Long userId, String name) {
-        Account account = accountRepository.findByUserIdAndName(userId, name);
+    public AccountDTO getByName(String name) {
+        Account account = accountRepository.findByUserIdAndName(authenticationService.getUserId(), name);
         return accountMapper.toDTO(account);
     }
 

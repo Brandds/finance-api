@@ -58,10 +58,10 @@ public class CategoryController {
         summary = "Listar minhas categorias",
         description = "Retorna todas as categorias do usuário autenticado"
     )
-    public ResponseEntity<ApiResponse<Page<CategoryDTO>>> getAll(
+    public ResponseEntity<ApiResponse<Page<CategoryDTO>>> getByUserList(
             @ParameterObject Pageable pageable) {
 
-        Page<CategoryDTO> categories = categoryService.getAll(pageable);
+        Page<CategoryDTO> categories = categoryService.getByUserList(pageable);
 
         return ResponseUtil.ok(categories, "Categorias encontradas com sucesso");
     }

@@ -52,38 +52,31 @@ public class AccountController {
         return ResponseEntity.notFound().build();
     }
 
-    @GetMapping("/user/{userId}")
-    @Operation(summary = "Listar contas do usuário", description = "Retorna todas as contas de um usuário")
-    public ResponseEntity<ApiResponse<Page<AccountDTO>>> getByUserId(
-            @PathVariable Long userId,
-            Pageable pageable) {
-        Page<AccountDTO> accounts = accountService.getByUserId(userId, pageable);
+    @GetMapping()
+    @Operation(summary = "Listar contas do usuário", description = "Retorna todas as contas de um usuário (paginacao)")
+    public ResponseEntity<ApiResponse<Page<AccountDTO>>> getAllPage(Pageable pageable) {
+        Page<AccountDTO> accounts = accountService.getAllPage(pageable);
         return ResponseUtil.ok(accounts, "Contas encontradas com sucesso");
     }
 
-    @GetMapping("/user/{userId}/list")
+    @GetMapping("/user/list")
     @Operation(summary = "Listar contas do usuário (sem paginação)", description = "Retorna todas as contas de um usuário sem paginação")
-    public ResponseEntity<ApiResponse<List<AccountDTO>>> getByUserIdList(
-            @PathVariable Long userId) {
-        List<AccountDTO> accounts = accountService.getByUserIdList(userId);
+    public ResponseEntity<ApiResponse<List<AccountDTO>>> getAll() {
+        List<AccountDTO> accounts = accountService.getAll();
         return ResponseUtil.ok(accounts, "Contas encontradas com sucesso");
     }
 
-    @GetMapping("/user/{userId}/type")
+    @GetMapping("/user/type")
     @Operation(summary = "Listar contas por tipo", description = "Retorna contas de um usuário filtradas por tipo")
-    public ResponseEntity<ApiResponse<List<AccountDTO>>> getByUserIdAndType(
-            @PathVariable Long userId,
-            @RequestParam AccountType type) {
-        List<AccountDTO> accounts = accountService.getByUserIdAndType(userId, type);
+    public ResponseEntity<ApiResponse<List<AccountDTO>>> getByType(@RequestParam AccountType type) {
+        List<AccountDTO> accounts = accountService.getByType(type);
         return ResponseUtil.ok(accounts, "Contas encontradas com sucesso");
     }
 
-    @GetMapping("/user/{userId}/name")
+    @GetMapping("/user/name")
     @Operation(summary = "Buscar conta por nome", description = "Retorna uma conta específica pelo nome do usuário")
-    public ResponseEntity<ApiResponse<AccountDTO>> getByUserIdAndName(
-            @PathVariable Long userId,
-            @RequestParam String name) {
-        AccountDTO dto = accountService.getByUserIdAndName(userId, name);
+    public ResponseEntity<ApiResponse<AccountDTO>> getByName(@RequestParam String name) {
+        AccountDTO dto = accountService.getByName(name);
         if (dto != null) {
             return ResponseUtil.ok(dto, "Conta encontrada com sucesso");
         }
