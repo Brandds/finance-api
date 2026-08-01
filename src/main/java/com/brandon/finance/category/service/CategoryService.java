@@ -9,6 +9,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.brandon.finance.authentication.service.AuthenticatedUserService;
 import com.brandon.finance.category.dto.CategoryDTO;
 import com.brandon.finance.category.entity.Category;
 import com.brandon.finance.category.mapper.CategoryMapper;
@@ -22,12 +23,14 @@ public class CategoryService {
 
     private final CategoryRepository categoryRepository;
     private final CategoryMapper categoryMapper;
+    private final AuthenticatedUserService authenticationService;
 
     @Transactional
     public CategoryDTO create(CategoryDTO dto) {
         Category category = categoryMapper.toEntity(dto);
-        Category saved = categoryRepository.save(category);
-        return categoryMapper.toDTO(saved);
+        category.setUser(authenticationService.getUser());
+        
+        return categoryMapper.toDTO(categoryRepository.save(category));
     }
 
     @Transactional(readOnly = true)

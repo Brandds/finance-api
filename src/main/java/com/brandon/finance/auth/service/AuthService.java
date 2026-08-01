@@ -7,7 +7,6 @@ import com.brandon.finance.auth.dto.LoginRequest;
 import com.brandon.finance.auth.dto.LoginResponse;
 import com.brandon.finance.auth.helper.AuthHelper;
 import com.brandon.finance.shared.base.excepetion.ResourceNotFoundException;
-import com.brandon.finance.shared.base.excepetion.UnauthorizedException;
 import com.brandon.finance.user.entity.User;
 import com.brandon.finance.user.mapper.UserMapper;
 import com.brandon.finance.user.repository.UserRepository;
@@ -19,7 +18,6 @@ import lombok.RequiredArgsConstructor;
 public class AuthService {
     
     private final UserRepository userRepository;
-    private final PasswordEncoder passwordEncoder;
     private final JwtService jwtService;
     private final UserMapper userMapper;
     private final AuthHelper authHelper;

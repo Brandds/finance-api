@@ -4,7 +4,6 @@ import org.springframework.stereotype.Component;
 
 import com.brandon.finance.category.dto.CategoryDTO;
 import com.brandon.finance.category.entity.Category;
-import com.brandon.finance.user.entity.User;
 
 @Component
 public class CategoryMapper {
@@ -16,8 +15,7 @@ public class CategoryMapper {
 
         return new CategoryDTO(
             category.getId(),
-            category.getName(),
-            category.getUser() != null ? category.getUser().getId() : null
+            category.getName()
         );
     }
 
@@ -28,7 +26,6 @@ public class CategoryMapper {
 
         Category category = new Category();
         category.setName(dto.getName());
-        category.setUser(new User(dto.getUserId()));
 
         return category;
     }

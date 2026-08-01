@@ -11,12 +11,12 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
+import com.brandon.finance.auth.model.AuthenticatedUser;
 import com.brandon.finance.auth.service.JwtService;
 import com.brandon.finance.shared.base.enums.ErrorCode;
 import com.brandon.finance.shared.base.excepetion.UnauthorizedException;
 import com.brandon.finance.shared.base.excepetion.record.ApiError;
-import com.brandon.finance.user.entity.User;
-import com.brandon.finance.user.repository.UserRepository;
+import com.brandon.finance.user.enums.Role;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import jakarta.servlet.FilterChain;
@@ -28,16 +28,14 @@ import lombok.RequiredArgsConstructor;
 @Component
 @RequiredArgsConstructor
 public class JwtFilter extends OncePerRequestFilter {
-    
-    private final JwtService jwtService;
-    private final UserRepository userRepository;
-    private final ObjectMapper objectMapper;
 
+    private final JwtService jwtService;
+    private final ObjectMapper objectMapper;
 
     @Override
     protected void doFilterInternal(HttpServletRequest request,
-        HttpServletResponse response, FilterChain filterChain)
-        throws ServletException, IOException {
+            HttpServletResponse response, FilterChain filterChain)
+            throws ServletException, IOException {
 
         String authHeader = request.getHeader("Authorization");
 
@@ -46,7 +44,6 @@ public class JwtFilter extends OncePerRequestFilter {
             return;
         }
 
-        
         String token = authHeader.substring(7);
 
         try {
@@ -59,32 +56,32 @@ public class JwtFilter extends OncePerRequestFilter {
                     request,
                     response,
                     ex.getErrorCode(),
-                    ex.getMessage()
-            );
+                    ex.getMessage());
 
             return;
         }
 
+        Long userId = jwtService.extractUserId(token);
         String email = jwtService.extractEmail(token);
-        String role = jwtService.extractRole(token);
+        Role role = Role.valueOf(jwtService.extractRole(token));
 
-        if (email != null && SecurityContextHolder.getContext().getAuthentication() == null) {
+        if (email != null
+                && SecurityContextHolder.getContext().getAuthentication() == null) {
 
-            User user = userRepository.findByEmail(email).orElse(null);
+            var authorities = List.of(
+                    new SimpleGrantedAuthority("ROLE_" + role.name()));
 
-            if (user != null) {
+            AuthenticatedUser authenticatedUser = new AuthenticatedUser(
+                    userId,
+                    email,
+                    role);
 
-                var authorities = List.of(
-                        new SimpleGrantedAuthority("ROLE_" + role)
-                );
+            UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(
+                    authenticatedUser,
+                    null,
+                    authorities);
 
-                UsernamePasswordAuthenticationToken auth =
-                    new UsernamePasswordAuthenticationToken(
-                            user, null, authorities
-                    );
-
-                SecurityContextHolder.getContext().setAuthentication(auth);
-            }
+            SecurityContextHolder.getContext().setAuthentication(authentication);
         }
 
         filterChain.doFilter(request, response);
@@ -94,23 +91,20 @@ public class JwtFilter extends OncePerRequestFilter {
             HttpServletRequest request,
             HttpServletResponse response,
             ErrorCode errorCode,
-            String message
-    ) throws IOException {
+            String message) throws IOException {
 
         ApiError error = new ApiError(
                 LocalDateTime.now(),
                 HttpStatus.UNAUTHORIZED.value(),
                 errorCode.name(),
                 message,
-                request.getRequestURI()
-        );
+                request.getRequestURI());
 
         response.setStatus(HttpStatus.UNAUTHORIZED.value());
         response.setContentType("application/json");
 
         objectMapper.writeValue(
                 response.getOutputStream(),
-                error
-        );
+                error);
     }
 }
