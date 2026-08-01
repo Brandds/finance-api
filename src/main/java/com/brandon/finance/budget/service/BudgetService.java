@@ -9,6 +9,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.brandon.finance.authentication.service.AuthenticatedUserService;
 import com.brandon.finance.budget.dto.BudgetDTO;
 import com.brandon.finance.budget.entity.Budget;
 import com.brandon.finance.budget.mapper.BudgetMapper;
@@ -22,6 +23,7 @@ public class BudgetService {
 
     private final BudgetRepository budgetRepository;
     private final BudgetMapper budgetMapper;
+    private final AuthenticatedUserService authenticationService;
 
     @Transactional
     public BudgetDTO create(BudgetDTO dto) {
@@ -38,8 +40,8 @@ public class BudgetService {
     }
 
     @Transactional(readOnly = true)
-    public Page<BudgetDTO> getByUserId(Long userId, Pageable pageable) {
-        Page<Budget> budgets = budgetRepository.findByUserId(userId, pageable);
+    public Page<BudgetDTO> getAllPage(Pageable pageable) {
+        Page<Budget> budgets = budgetRepository.findByUserId(authenticationService.getUserId(), pageable);
         List<BudgetDTO> dtos = budgets.getContent()
             .stream()
             .map(budgetMapper::toDTO)
@@ -48,48 +50,48 @@ public class BudgetService {
     }
 
     @Transactional(readOnly = true)
-    public List<BudgetDTO> getByUserId(Long userId) {
-        return budgetRepository.findByUserId(userId)
+    public List<BudgetDTO> getAll() {
+        return budgetRepository.findByUserId(authenticationService.getUserId())
             .stream()
             .map(budgetMapper::toDTO)
             .collect(Collectors.toList());
     }
 
     @Transactional(readOnly = true)
-    public List<BudgetDTO> getByUserIdAndCategory(Long userId, Long categoryId) {
-        return budgetRepository.findByUserIdAndCategoryId(userId, categoryId)
+    public List<BudgetDTO> getByCategoryId(Long categoryId) {
+        return budgetRepository.findByUserIdAndCategoryId(authenticationService.getUserId(), categoryId)
             .stream()
             .map(budgetMapper::toDTO)
             .collect(Collectors.toList());
     }
 
     @Transactional(readOnly = true)
-    public List<BudgetDTO> getByUserIdAndMonth(Long userId, Integer month) {
-        return budgetRepository.findByUserIdAndMonth(userId, month)
+    public List<BudgetDTO> getByMonth(Integer month) {
+        return budgetRepository.findByUserIdAndMonth(authenticationService.getUserId(), month)
             .stream()
             .map(budgetMapper::toDTO)
             .collect(Collectors.toList());
     }
 
     @Transactional(readOnly = true)
-    public List<BudgetDTO> getByUserIdAndYear(Long userId, Integer year) {
-        return budgetRepository.findByUserIdAndYear(userId, year)
+    public List<BudgetDTO> getByYear(Integer year) {
+        return budgetRepository.findByUserIdAndYear(authenticationService.getUserId(), year)
             .stream()
             .map(budgetMapper::toDTO)
             .collect(Collectors.toList());
     }
 
     @Transactional(readOnly = true)
-    public List<BudgetDTO> getByUserIdAndMonthAndYear(Long userId, Integer month, Integer year) {
-        return budgetRepository.findByUserIdAndMonthAndYear(userId, month, year)
+    public List<BudgetDTO> getByMonthAndYear(Integer month, Integer year) {
+        return budgetRepository.findByUserIdAndMonthAndYear(authenticationService.getUserId(), month, year)
             .stream()
             .map(budgetMapper::toDTO)
             .collect(Collectors.toList());
     }
 
     @Transactional(readOnly = true)
-    public BudgetDTO getByUserIdAndCategoryIdAndMonthAndYear(Long userId, Long categoryId, Integer month, Integer year) {
-        return budgetRepository.findByUserIdAndCategoryIdAndMonthAndYear(userId, categoryId, month, year)
+    public BudgetDTO getByCategoryIdAndMonthAndYear(Long categoryId, Integer month, Integer year) {
+        return budgetRepository.findByUserIdAndCategoryIdAndMonthAndYear(authenticationService.getUserId(), categoryId, month, year)
             .map(budgetMapper::toDTO)
             .orElse(null);
     }

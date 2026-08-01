@@ -51,68 +51,57 @@ public class BudgetController {
         return ResponseEntity.notFound().build();
     }
 
-    @GetMapping("/user/{userId}")
+    @GetMapping()
     @Operation(summary = "Listar orçamentos pagos", description = "Retorna todos os orçamentos de um usuário com paginação")
-    public ResponseEntity<ApiResponse<Page<BudgetDTO>>> getByUserId(
-            @PathVariable Long userId,
-            Pageable pageable) {
-        Page<BudgetDTO> budgets = budgetService.getByUserId(userId, pageable);
+    public ResponseEntity<ApiResponse<Page<BudgetDTO>>> getAllPage(Pageable pageable) {
+        Page<BudgetDTO> budgets = budgetService.getAllPage(pageable);
         return ResponseUtil.ok(budgets, "Orçamentos encontrados com sucesso");
     }
 
-    @GetMapping("/user/{userId}/list")
+    @GetMapping("/user/list")
     @Operation(summary = "Listar orçamentos do usuário (sem paginação)", description = "Retorna todos os orçamentos de um usuário")
-    public ResponseEntity<ApiResponse<List<BudgetDTO>>> getByUserIdList(
-            @PathVariable Long userId) {
-        List<BudgetDTO> budgets = budgetService.getByUserId(userId);
+    public ResponseEntity<ApiResponse<List<BudgetDTO>>> getAll() {
+        List<BudgetDTO> budgets = budgetService.getAll();
         return ResponseUtil.ok(budgets, "Orçamentos encontrados com sucesso");
     }
 
-    @GetMapping("/user/{userId}/category/{categoryId}")
+    @GetMapping("/category/{categoryId}")
     @Operation(summary = "Listar orçamentos por categoria", description = "Retorna orçamentos de um usuário em uma categoria específica")
-    public ResponseEntity<ApiResponse<List<BudgetDTO>>> getByUserIdAndCategory(
-            @PathVariable Long userId,
-            @PathVariable Long categoryId) {
-        List<BudgetDTO> budgets = budgetService.getByUserIdAndCategory(userId, categoryId);
+    public ResponseEntity<ApiResponse<List<BudgetDTO>>> getByCategoryId(@PathVariable Long categoryId) {
+        List<BudgetDTO> budgets = budgetService.getByCategoryId(categoryId);
         return ResponseUtil.ok(budgets, "Orçamentos encontrados com sucesso");
     }
 
-    @GetMapping("/user/{userId}/month/{month}")
+    @GetMapping("/month/{month}")
     @Operation(summary = "Listar orçamentos por mês", description = "Retorna orçamentos de um usuário em um mês específico")
-    public ResponseEntity<ApiResponse<List<BudgetDTO>>> getByUserIdAndMonth(
-            @PathVariable Long userId,
-            @PathVariable Integer month) {
-        List<BudgetDTO> budgets = budgetService.getByUserIdAndMonth(userId, month);
+    public ResponseEntity<ApiResponse<List<BudgetDTO>>> getByMonth(@PathVariable Integer month) {
+        List<BudgetDTO> budgets = budgetService.getByMonth(month);
         return ResponseUtil.ok(budgets, "Orçamentos encontrados com sucesso");
     }
 
-    @GetMapping("/user/{userId}/year/{year}")
+    @GetMapping("/year/{year}")
     @Operation(summary = "Listar orçamentos por ano", description = "Retorna orçamentos de um usuário em um ano específico")
-    public ResponseEntity<ApiResponse<List<BudgetDTO>>> getByUserIdAndYear(
-            @PathVariable Long userId,
-            @PathVariable Integer year) {
-        List<BudgetDTO> budgets = budgetService.getByUserIdAndYear(userId, year);
+    public ResponseEntity<ApiResponse<List<BudgetDTO>>> getByYear(@PathVariable Integer year) {
+        List<BudgetDTO> budgets = budgetService.getByYear(year);
         return ResponseUtil.ok(budgets, "Orçamentos encontrados com sucesso");
     }
 
     @GetMapping("/user/{userId}/period")
     @Operation(summary = "Listar orçamentos por período", description = "Retorna orçamentos de um usuário em um mês e ano específicos")
-    public ResponseEntity<ApiResponse<List<BudgetDTO>>> getByUserIdAndMonthAndYear(
-            @PathVariable Long userId,
+    public ResponseEntity<ApiResponse<List<BudgetDTO>>> getByMonthAndYear(
             @RequestParam Integer month,
             @RequestParam Integer year) {
-        List<BudgetDTO> budgets = budgetService.getByUserIdAndMonthAndYear(userId, month, year);
+        List<BudgetDTO> budgets = budgetService.getByMonthAndYear(month, year);
         return ResponseUtil.ok(budgets, "Orçamentos encontrados com sucesso");
     }
 
     @GetMapping("/user/{userId}/category/{categoryId}/period")
     @Operation(summary = "Buscar orçamento por categoria e período", description = "Retorna um orçamento específico por categoria, mês e ano")
-    public ResponseEntity<ApiResponse<BudgetDTO>> getByUserIdAndCategoryIdAndMonthAndYear(
-            @PathVariable Long userId,
+    public ResponseEntity<ApiResponse<BudgetDTO>> getByCategoryIdAndMonthAndYear(
             @PathVariable Long categoryId,
             @RequestParam Integer month,
             @RequestParam Integer year) {
-        BudgetDTO dto = budgetService.getByUserIdAndCategoryIdAndMonthAndYear(userId, categoryId, month, year);
+        BudgetDTO dto = budgetService.getByCategoryIdAndMonthAndYear(categoryId, month, year);
         if (dto != null) {
             return ResponseUtil.ok(dto, "Orçamento encontrado com sucesso");
         }
