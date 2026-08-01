@@ -2,6 +2,7 @@ package com.brandon.finance.category.controller;
 
 import java.util.List;
 
+import org.springdoc.core.annotations.ParameterObject;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
@@ -52,12 +53,16 @@ public class CategoryController {
         return ResponseEntity.notFound().build();
     }
 
-    @GetMapping("/user/{userId}")
-    @Operation(summary = "Listar categorias do usuário", description = "Retorna todas as categorias de um usuário")
-    public ResponseEntity<ApiResponse<Page<CategoryDTO>>> getByUserId(
-            @PathVariable Long userId,
-            Pageable pageable) {
-        Page<CategoryDTO> categories = categoryService.getByUserId(userId, pageable);
+    @GetMapping
+    @Operation(
+        summary = "Listar minhas categorias",
+        description = "Retorna todas as categorias do usuário autenticado"
+    )
+    public ResponseEntity<ApiResponse<Page<CategoryDTO>>> getAll(
+            @ParameterObject Pageable pageable) {
+
+        Page<CategoryDTO> categories = categoryService.getAll(pageable);
+
         return ResponseUtil.ok(categories, "Categorias encontradas com sucesso");
     }
 

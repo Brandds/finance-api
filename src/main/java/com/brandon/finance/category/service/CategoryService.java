@@ -41,8 +41,8 @@ public class CategoryService {
     }
 
     @Transactional(readOnly = true)
-    public Page<CategoryDTO> getByUserId(Long userId, Pageable pageable) {
-        Page<Category> categories = categoryRepository.findByUserId(userId, pageable);
+    public Page<CategoryDTO> getAll(Pageable pageable) {
+        Page<Category> categories = categoryRepository.findByUserId(authenticationService.getUserId(), pageable);
         List<CategoryDTO> dtos = categories.getContent()
             .stream()
             .map(categoryMapper::toDTO)
