@@ -54,41 +54,34 @@ public class ExpenseController {
         return ResponseEntity.notFound().build();
     }
 
-    @GetMapping("/user/{userId}")
+    @GetMapping()
     @Operation(summary = "Listar despesas do usuário", description = "Retorna todas as despesas de um usuário")
-    public ResponseEntity<ApiResponse<Page<ExpenseDTO>>> getByUserId(
-            @PathVariable Long userId,
-            Pageable pageable) {
-        Page<ExpenseDTO> expenses = expenseService.getByUserId(userId, pageable);
+    public ResponseEntity<ApiResponse<Page<ExpenseDTO>>> getAllPage(Pageable pageable) {
+        Page<ExpenseDTO> expenses = expenseService.getAllPage(pageable);
         return ResponseUtil.ok(expenses, "Despesas encontradas com sucesso");
     }
 
-    @GetMapping("/user/{userId}/category/{categoryId}")
+    @GetMapping("/category/{categoryId}")
     @Operation(summary = "Listar despesas por categoria", description = "Retorna despesas de um usuário em uma categoria específica")
-    public ResponseEntity<ApiResponse<List<ExpenseDTO>>> getByUserIdAndCategory(
-            @PathVariable Long userId,
-            @PathVariable Long categoryId) {
-        List<ExpenseDTO> expenses = expenseService.getByUserIdAndCategory(userId, categoryId);
+    public ResponseEntity<ApiResponse<List<ExpenseDTO>>> getByCategoryId(@PathVariable Long categoryId) {
+        List<ExpenseDTO> expenses = expenseService.getByCategoryId(categoryId);
         return ResponseUtil.ok(expenses, "Despesas encontradas com sucesso");
     }
 
-    @GetMapping("/user/{userId}/date-range")
+    @GetMapping("/date-range")
     @Operation(summary = "Listar despesas por período", description = "Retorna despesas em um período de datas")
-    public ResponseEntity<ApiResponse<Page<ExpenseDTO>>> getByUserIdAndDateRange(
-            @PathVariable Long userId,
+    public ResponseEntity<ApiResponse<Page<ExpenseDTO>>> getByDateRange(
             @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate startDate,
             @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate endDate,
             Pageable pageable) {
-        Page<ExpenseDTO> expenses = expenseService.getByUserIdAndDateRange(userId, startDate, endDate, pageable);
+        Page<ExpenseDTO> expenses = expenseService.getByDateRange(startDate, endDate, pageable);
         return ResponseUtil.ok(expenses, "Despesas encontradas com sucesso");
     }
 
-    @GetMapping("/user/{userId}/account/{accountId}")
+    @GetMapping("/account/{accountId}")
     @Operation(summary = "Listar despesas por conta", description = "Retorna despesas de um usuário em uma conta específica")
-    public ResponseEntity<ApiResponse<List<ExpenseDTO>>> getByUserIdAndAccount(
-            @PathVariable Long userId,
-            @PathVariable Long accountId) {
-        List<ExpenseDTO> expenses = expenseService.getByUserIdAndAccount(userId, accountId);
+    public ResponseEntity<ApiResponse<List<ExpenseDTO>>> getByAccountId(@PathVariable Long accountId) {
+        List<ExpenseDTO> expenses = expenseService.getByAccountId(accountId);
         return ResponseUtil.ok(expenses, "Despesas encontradas com sucesso");
     }
 

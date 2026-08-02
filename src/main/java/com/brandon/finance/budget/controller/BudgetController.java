@@ -58,7 +58,7 @@ public class BudgetController {
         return ResponseUtil.ok(budgets, "Orçamentos encontrados com sucesso");
     }
 
-    @GetMapping("/user/list")
+    @GetMapping("/list")
     @Operation(summary = "Listar orçamentos do usuário (sem paginação)", description = "Retorna todos os orçamentos de um usuário")
     public ResponseEntity<ApiResponse<List<BudgetDTO>>> getAll() {
         List<BudgetDTO> budgets = budgetService.getAll();
@@ -86,7 +86,7 @@ public class BudgetController {
         return ResponseUtil.ok(budgets, "Orçamentos encontrados com sucesso");
     }
 
-    @GetMapping("/user/{userId}/period")
+    @GetMapping("/month-year")
     @Operation(summary = "Listar orçamentos por período", description = "Retorna orçamentos de um usuário em um mês e ano específicos")
     public ResponseEntity<ApiResponse<List<BudgetDTO>>> getByMonthAndYear(
             @RequestParam Integer month,
@@ -95,7 +95,7 @@ public class BudgetController {
         return ResponseUtil.ok(budgets, "Orçamentos encontrados com sucesso");
     }
 
-    @GetMapping("/user/{userId}/category/{categoryId}/period")
+    @GetMapping("/category/{categoryId}/period")
     @Operation(summary = "Buscar orçamento por categoria e período", description = "Retorna um orçamento específico por categoria, mês e ano")
     public ResponseEntity<ApiResponse<BudgetDTO>> getByCategoryIdAndMonthAndYear(
             @PathVariable Long categoryId,

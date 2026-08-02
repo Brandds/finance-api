@@ -59,21 +59,21 @@ public class AccountController {
         return ResponseUtil.ok(accounts, "Contas encontradas com sucesso");
     }
 
-    @GetMapping("/user/list")
+    @GetMapping("/list")
     @Operation(summary = "Listar contas do usuário (sem paginação)", description = "Retorna todas as contas de um usuário sem paginação")
     public ResponseEntity<ApiResponse<List<AccountDTO>>> getAll() {
         List<AccountDTO> accounts = accountService.getAll();
         return ResponseUtil.ok(accounts, "Contas encontradas com sucesso");
     }
 
-    @GetMapping("/user/type")
+    @GetMapping("/type")
     @Operation(summary = "Listar contas por tipo", description = "Retorna contas de um usuário filtradas por tipo")
     public ResponseEntity<ApiResponse<List<AccountDTO>>> getByType(@RequestParam AccountType type) {
         List<AccountDTO> accounts = accountService.getByType(type);
         return ResponseUtil.ok(accounts, "Contas encontradas com sucesso");
     }
 
-    @GetMapping("/user/name")
+    @GetMapping("/name")
     @Operation(summary = "Buscar conta por nome", description = "Retorna uma conta específica pelo nome do usuário")
     public ResponseEntity<ApiResponse<AccountDTO>> getByName(@RequestParam String name) {
         AccountDTO dto = accountService.getByName(name);

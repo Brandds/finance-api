@@ -10,6 +10,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.brandon.finance.authentication.service.AuthenticatedUserService;
 import com.brandon.finance.expense.dto.ExpenseDTO;
 import com.brandon.finance.expense.entity.Expense;
 import com.brandon.finance.expense.mapper.ExpenseMapper;
@@ -23,6 +24,7 @@ public class ExpenseService {
 
     private final ExpenseRepository expenseRepository;
     private final ExpenseMapper expenseMapper;
+    private final AuthenticatedUserService authenticatedUserService;
 
     @Transactional
     public ExpenseDTO create(ExpenseDTO dto) {
@@ -39,8 +41,8 @@ public class ExpenseService {
     }
 
     @Transactional(readOnly = true)
-    public Page<ExpenseDTO> getByUserId(Long userId, Pageable pageable) {
-        Page<Expense> expenses = expenseRepository.findByUserId(userId, pageable);
+    public Page<ExpenseDTO> getAllPage(Pageable pageable) {
+        Page<Expense> expenses = expenseRepository.findByUserId(authenticatedUserService.getUserId(), pageable);
         List<ExpenseDTO> dtos = expenses.getContent()
             .stream()
             .map(expenseMapper::toDTO)
@@ -49,16 +51,16 @@ public class ExpenseService {
     }
 
     @Transactional(readOnly = true)
-    public List<ExpenseDTO> getByUserIdAndCategory(Long userId, Long categoryId) {
-        return expenseRepository.findByUserIdAndCategoryId(userId, categoryId)
+    public List<ExpenseDTO> getByCategoryId(Long categoryId) {
+        return expenseRepository.findByUserIdAndCategoryId(authenticatedUserService.getUserId(), categoryId)
             .stream()
             .map(expenseMapper::toDTO)
             .collect(Collectors.toList());
     }
 
     @Transactional(readOnly = true)
-    public Page<ExpenseDTO> getByUserIdAndDateRange(Long userId, LocalDate startDate, LocalDate endDate, Pageable pageable) {
-        Page<Expense> expenses = expenseRepository.findByUserIdAndDateBetween(userId, startDate, endDate, pageable);
+    public Page<ExpenseDTO> getByDateRange(LocalDate startDate, LocalDate endDate, Pageable pageable) {
+        Page<Expense> expenses = expenseRepository.findByUserIdAndDateBetween(authenticatedUserService.getUserId(), startDate, endDate, pageable);
         List<ExpenseDTO> dtos = expenses.getContent()
             .stream()
             .map(expenseMapper::toDTO)
@@ -67,8 +69,8 @@ public class ExpenseService {
     }
 
     @Transactional(readOnly = true)
-    public List<ExpenseDTO> getByUserIdAndAccount(Long userId, Long accountId) {
-        return expenseRepository.findByUserIdAndAccountId(userId, accountId)
+    public List<ExpenseDTO> getByAccountId(Long accountId) {
+        return expenseRepository.findByUserIdAndAccountId(authenticatedUserService.getUserId(), accountId)
             .stream()
             .map(expenseMapper::toDTO)
             .collect(Collectors.toList());

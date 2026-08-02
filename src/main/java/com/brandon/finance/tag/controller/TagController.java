@@ -40,14 +40,14 @@ public class TagController {
         return ResponseUtil.ok(tag, "Tag retrieved successfully");
     }
 
-    @GetMapping
+    @GetMapping()
     @Operation(summary = "Listar tags paginado", description = "Retorna todas as tags do usuário (paginado)")
     public ResponseEntity<ApiResponse<Page<TagDTO>>> getByUserId(@RequestParam Long userId, Pageable pageable) {
         Page<TagDTO> tags = tagService.getByUserId(userId, pageable);
         return ResponseUtil.ok(tags, "Tags retrieved successfully");
     }
 
-    @GetMapping()
+    @GetMapping("/list")
     @Operation(summary = "Listar todas as tags do usuário", description = "Retorna todas as tags sem paginação")
     public ResponseEntity<ApiResponse<List<TagDTO>>> getAll() {
         List<TagDTO> tags = tagService.getAll();
