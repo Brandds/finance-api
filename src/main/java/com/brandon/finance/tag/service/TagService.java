@@ -1,5 +1,6 @@
 package com.brandon.finance.tag.service;
 
+import com.brandon.finance.authentication.service.AuthenticatedUserService;
 import com.brandon.finance.tag.dto.TagDTO;
 import com.brandon.finance.tag.entity.Tag;
 import com.brandon.finance.tag.mapper.TagMapper;
@@ -21,11 +22,13 @@ public class TagService {
     private final TagRepository tagRepository;
     private final UserRepository userRepository;
     private final TagMapper tagMapper;
+    private final AuthenticatedUserService authenticatedUserService;
 
-    public TagService(TagRepository tagRepository, UserRepository userRepository, TagMapper tagMapper) {
+    public TagService(TagRepository tagRepository, UserRepository userRepository, TagMapper tagMapper, AuthenticatedUserService authenticatedUserService) {
         this.tagRepository = tagRepository;
         this.userRepository = userRepository;
         this.tagMapper = tagMapper;
+        this.authenticatedUserService = authenticatedUserService;
     }
 
     @Transactional
@@ -57,8 +60,8 @@ public class TagService {
     }
 
     @Transactional(readOnly = true)
-    public List<TagDTO> getByUserIdList(Long userId) {
-        List<Tag> tags = tagRepository.findByUserId(userId);
+    public List<TagDTO> getAll() {
+        List<Tag> tags = tagRepository.findByUserId(authenticatedUserService.getUserId());
         return tags.stream().map(tagMapper::toDTO).collect(Collectors.toList());
     }
 
