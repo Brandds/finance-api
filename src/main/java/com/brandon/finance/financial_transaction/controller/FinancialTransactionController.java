@@ -54,51 +54,42 @@ public class FinancialTransactionController {
         return ResponseEntity.notFound().build();
     }
 
-    @GetMapping("/user/{userId}")
+    @GetMapping()
     @Operation(summary = "Listar transações do usuário", description = "Retorna todas as transações de um usuário")
-    public ResponseEntity<ApiResponse<Page<FinancialTransactionDTO>>> getByUserId(
-            @PathVariable Long userId,
-            Pageable pageable) {
-        Page<FinancialTransactionDTO> transactions = transactionService.getByUserId(userId, pageable);
+    public ResponseEntity<ApiResponse<Page<FinancialTransactionDTO>>> getAllPage(Pageable pageable) {
+        Page<FinancialTransactionDTO> transactions = transactionService.getAllPage(pageable);
         return ResponseUtil.ok(transactions, "Transações encontradas com sucesso");
     }
 
-    @GetMapping("/user/{userId}/type/{type}")
+    @GetMapping("/type/{type}")
     @Operation(summary = "Listar transações por tipo", description = "Retorna transações filtradas por tipo (EXPENSE ou INCOME)")
-    public ResponseEntity<ApiResponse<Page<FinancialTransactionDTO>>> getByUserIdAndType(
-            @PathVariable Long userId,
-            @PathVariable TransactionType type,
+    public ResponseEntity<ApiResponse<Page<FinancialTransactionDTO>>> getByType(@PathVariable TransactionType type,
             Pageable pageable) {
-        Page<FinancialTransactionDTO> transactions = transactionService.getByUserIdAndType(userId, type, pageable);
+        Page<FinancialTransactionDTO> transactions = transactionService.getByType(type, pageable);
         return ResponseUtil.ok(transactions, "Transações encontradas com sucesso");
     }
 
-    @GetMapping("/user/{userId}/category/{categoryId}")
+    @GetMapping("/category/{categoryId}")
     @Operation(summary = "Listar transações por categoria", description = "Retorna transações de um usuário em uma categoria específica")
-    public ResponseEntity<ApiResponse<List<FinancialTransactionDTO>>> getByUserIdAndCategory(
-            @PathVariable Long userId,
-            @PathVariable Long categoryId) {
-        List<FinancialTransactionDTO> transactions = transactionService.getByUserIdAndCategory(userId, categoryId);
+    public ResponseEntity<ApiResponse<List<FinancialTransactionDTO>>> getByCategoryId(@PathVariable Long categoryId) {
+        List<FinancialTransactionDTO> transactions = transactionService.getByCategoryId(categoryId);
         return ResponseUtil.ok(transactions, "Transações encontradas com sucesso");
     }
 
-    @GetMapping("/user/{userId}/account/{accountId}")
+    @GetMapping("/account/{accountId}")
     @Operation(summary = "Listar transações por conta", description = "Retorna transações de um usuário em uma conta específica")
-    public ResponseEntity<ApiResponse<List<FinancialTransactionDTO>>> getByUserIdAndAccount(
-            @PathVariable Long userId,
-            @PathVariable Long accountId) {
-        List<FinancialTransactionDTO> transactions = transactionService.getByUserIdAndAccount(userId, accountId);
+    public ResponseEntity<ApiResponse<List<FinancialTransactionDTO>>> getByAccountId(@PathVariable Long accountId) {
+        List<FinancialTransactionDTO> transactions = transactionService.getByAccountId(accountId);
         return ResponseUtil.ok(transactions, "Transações encontradas com sucesso");
     }
 
-    @GetMapping("/user/{userId}/date-range")
+    @GetMapping("/date-range")
     @Operation(summary = "Listar transações por período", description = "Retorna transações em um período de datas")
-    public ResponseEntity<ApiResponse<Page<FinancialTransactionDTO>>> getByUserIdAndDateRange(
-            @PathVariable Long userId,
+    public ResponseEntity<ApiResponse<Page<FinancialTransactionDTO>>> getByDateRange(
             @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate startDate,
             @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate endDate,
             Pageable pageable) {
-        Page<FinancialTransactionDTO> transactions = transactionService.getByUserIdAndDateRange(userId, startDate, endDate, pageable);
+        Page<FinancialTransactionDTO> transactions = transactionService.getByDateRange(startDate, endDate, pageable);
         return ResponseUtil.ok(transactions, "Transações encontradas com sucesso");
     }
 

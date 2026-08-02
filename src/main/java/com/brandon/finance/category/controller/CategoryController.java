@@ -66,7 +66,7 @@ public class CategoryController {
         return ResponseUtil.ok(categories, "Categorias encontradas com sucesso");
     }
 
-    @GetMapping("/user/{userId}/list")
+    @GetMapping("/list")
     @Operation(summary = "Listar categorias do usuário (sem paginação)", description = "Retorna todas as categorias de um usuário sem paginação")
     public ResponseEntity<ApiResponse<List<CategoryDTO>>> getByUserIdList(
             @PathVariable Long userId) {
@@ -74,7 +74,7 @@ public class CategoryController {
         return ResponseUtil.ok(categories, "Categorias encontradas com sucesso");
     }
 
-    @GetMapping("/user/{userId}/name")
+    @GetMapping("/name")
     @Operation(summary = "Buscar categoria por nome", description = "Retorna uma categoria específica pelo nome do usuário")
     public ResponseEntity<ApiResponse<CategoryDTO>> getByUserIdAndName(
             @PathVariable Long userId,

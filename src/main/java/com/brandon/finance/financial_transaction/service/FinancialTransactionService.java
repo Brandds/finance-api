@@ -10,6 +10,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.brandon.finance.authentication.service.AuthenticatedUserService;
 import com.brandon.finance.financial_transaction.dto.FinancialTransactionDTO;
 import com.brandon.finance.financial_transaction.entity.FinancialTransaction;
 import com.brandon.finance.financial_transaction.entity.FinancialTransaction.TransactionType;
@@ -24,6 +25,7 @@ public class FinancialTransactionService {
 
     private final FinancialTransactionRepository transactionRepository;
     private final FinancialTransactionMapper transactionMapper;
+    private final AuthenticatedUserService authenticationService;
 
     @Transactional
     public FinancialTransactionDTO create(FinancialTransactionDTO dto) {
@@ -40,8 +42,8 @@ public class FinancialTransactionService {
     }
 
     @Transactional(readOnly = true)
-    public Page<FinancialTransactionDTO> getByUserId(Long userId, Pageable pageable) {
-        Page<FinancialTransaction> transactions = transactionRepository.findByUserId(userId, pageable);
+    public Page<FinancialTransactionDTO> getAllPage(Pageable pageable) {
+        Page<FinancialTransaction> transactions = transactionRepository.findByUserId(authenticationService.getUserId(), pageable);
         List<FinancialTransactionDTO> dtos = transactions.getContent()
             .stream()
             .map(transactionMapper::toDTO)
@@ -50,8 +52,8 @@ public class FinancialTransactionService {
     }
 
     @Transactional(readOnly = true)
-    public Page<FinancialTransactionDTO> getByUserIdAndType(Long userId, TransactionType type, Pageable pageable) {
-        Page<FinancialTransaction> transactions = transactionRepository.findByUserIdAndType(userId, type, pageable);
+    public Page<FinancialTransactionDTO> getByType(TransactionType type, Pageable pageable) {
+        Page<FinancialTransaction> transactions = transactionRepository.findByUserIdAndType(authenticationService.getUserId(), type, pageable);
         List<FinancialTransactionDTO> dtos = transactions.getContent()
             .stream()
             .map(transactionMapper::toDTO)
@@ -60,24 +62,24 @@ public class FinancialTransactionService {
     }
 
     @Transactional(readOnly = true)
-    public List<FinancialTransactionDTO> getByUserIdAndCategory(Long userId, Long categoryId) {
-        return transactionRepository.findByUserIdAndCategoryId(userId, categoryId)
+    public List<FinancialTransactionDTO> getByCategoryId(Long categoryId) {
+        return transactionRepository.findByUserIdAndCategoryId(authenticationService.getUserId(), categoryId)
             .stream()
             .map(transactionMapper::toDTO)
             .collect(Collectors.toList());
     }
 
     @Transactional(readOnly = true)
-    public List<FinancialTransactionDTO> getByUserIdAndAccount(Long userId, Long accountId) {
-        return transactionRepository.findByUserIdAndAccountId(userId, accountId)
+    public List<FinancialTransactionDTO> getByAccountId(Long accountId) {
+        return transactionRepository.findByUserIdAndAccountId(authenticationService.getUserId(), accountId)
             .stream()
             .map(transactionMapper::toDTO)
             .collect(Collectors.toList());
     }
 
     @Transactional(readOnly = true)
-    public Page<FinancialTransactionDTO> getByUserIdAndDateRange(Long userId, LocalDate startDate, LocalDate endDate, Pageable pageable) {
-        Page<FinancialTransaction> transactions = transactionRepository.findByUserIdAndDateBetween(userId, startDate, endDate, pageable);
+    public Page<FinancialTransactionDTO> getByDateRange(LocalDate startDate, LocalDate endDate, Pageable pageable) {
+        Page<FinancialTransaction> transactions = transactionRepository.findByUserIdAndDateBetween(authenticationService.getUserId(), startDate, endDate, pageable);
         List<FinancialTransactionDTO> dtos = transactions.getContent()
             .stream()
             .map(transactionMapper::toDTO)
