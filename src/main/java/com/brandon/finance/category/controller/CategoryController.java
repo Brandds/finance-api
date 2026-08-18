@@ -68,9 +68,8 @@ public class CategoryController {
 
     @GetMapping("/list")
     @Operation(summary = "Listar categorias do usuário (sem paginação)", description = "Retorna todas as categorias de um usuário sem paginação")
-    public ResponseEntity<ApiResponse<List<CategoryDTO>>> getByUserIdList(
-            @PathVariable Long userId) {
-        List<CategoryDTO> categories = categoryService.getByUserIdList(userId);
+    public ResponseEntity<ApiResponse<List<CategoryDTO>>> getByUserIdList() {
+        List<CategoryDTO> categories = categoryService.getByUserIdList();
         return ResponseUtil.ok(categories, "Categorias encontradas com sucesso");
     }
 

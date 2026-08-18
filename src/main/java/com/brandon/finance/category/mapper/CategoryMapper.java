@@ -15,7 +15,8 @@ public class CategoryMapper {
 
         return new CategoryDTO(
             category.getId(),
-            category.getName()
+            category.getName(),
+            category.getIcon()
         );
     }
 

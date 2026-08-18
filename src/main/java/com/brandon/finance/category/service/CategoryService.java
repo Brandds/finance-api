@@ -51,8 +51,8 @@ public class CategoryService {
     }
 
     @Transactional(readOnly = true)
-    public List<CategoryDTO> getByUserIdList(Long userId) {
-        return categoryRepository.findByUserId(userId)
+    public List<CategoryDTO> getByUserIdList() {
+        return categoryRepository.findByUserId(authenticationService.getUserId())
             .stream()
             .map(categoryMapper::toDTO)
             .collect(Collectors.toList());
