@@ -1,0 +1,10 @@
+CREATE TABLE IF NOT EXISTS account (
+    id BIGSERIAL PRIMARY KEY,
+    name VARCHAR(100) NOT NULL,
+    type VARCHAR(20) NOT NULL,
+    user_id BIGINT NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+
+    CONSTRAINT fk_account_user
+        FOREIGN KEY (user_id) REFERENCES users(id)
+);

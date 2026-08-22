@@ -1,0 +1,4 @@
+DROP TRIGGER IF EXISTS trg_tag_audit ON tag;
+CREATE TRIGGER trg_tag_audit
+AFTER INSERT OR UPDATE OR DELETE ON tag
+FOR EACH ROW EXECUTE FUNCTION audit.log_changes();

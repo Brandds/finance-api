@@ -1,0 +1,1 @@
+alter table tag add column updated_at timestamp not null default current_timestamp;

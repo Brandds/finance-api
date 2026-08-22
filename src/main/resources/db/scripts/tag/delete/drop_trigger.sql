@@ -1,0 +1,1 @@
+DROP TRIGGER IF EXISTS audit_trigger ON expense_tag;
