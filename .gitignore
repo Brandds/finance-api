@@ -37,7 +37,6 @@ postgres_data/
 # 🔐 Segurança
 ############################################
 .env
-.env.*
 application-local.yml
 application-local.yaml
 application-secret.yml
