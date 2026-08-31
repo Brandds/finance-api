@@ -21,4 +21,5 @@ public class ExpenseDTO {
     private Long userId;
     private Long categoryId;
     private Long accountId;
+    private String categoryName;
 }

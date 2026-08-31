@@ -18,6 +18,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.brandon.finance.expense.dto.ExpenseDTO;
+import com.brandon.finance.expense.dto.ExpenseAnalysisDTO;
 import com.brandon.finance.expense.service.ExpenseService;
 import com.brandon.finance.shared.base.response.ApiResponse;
 import com.brandon.finance.shared.base.response.ResponseUtil;
@@ -103,4 +104,16 @@ public class ExpenseController {
         expenseService.delete(id);
         return ResponseUtil.noContent("Despesa removida com sucesso");
     }
+
+    @GetMapping("/get-expense-analysis")
+        @Operation(
+            summary = "Analisar gastos por período",
+            description = "Calcula o total gasto no período informado, compara com o período anterior equivalente e retorna a variação percentual dos gastos.")
+    public ResponseEntity<ApiResponse<ExpenseAnalysisDTO>> getExpenseAnalysis(
+            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate startDate,
+            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate endDate) {
+        ExpenseAnalysisDTO analysis = expenseService.getExpenseAnalysis(startDate, endDate);
+        return ResponseUtil.ok(analysis, "Análise de despesas realizada com sucesso");
+    }
+    
 }

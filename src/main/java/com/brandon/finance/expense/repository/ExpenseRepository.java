@@ -1,6 +1,7 @@
 package com.brandon.finance.expense.repository;
 
 import java.time.LocalDate;
+import java.util.List;
 import java.util.Optional;
 
 import org.springframework.data.domain.Page;
@@ -15,6 +16,8 @@ public interface ExpenseRepository extends JpaRepository<Expense,Long> {
     Optional<Expense> findByUserIdAndCategoryId(Long userId, Long categoryId);
 
     Page<Expense> findByUserIdAndDateBetween(Long userId, LocalDate startDate, LocalDate endDate, Pageable pageable);
+
+    List<Expense> findByUserIdAndDateBetween(Long userId, LocalDate startDate, LocalDate endDate);
 
     Optional<Expense> findByUserIdAndAccountId(Long userId, Long accountId);
     

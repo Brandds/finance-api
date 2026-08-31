@@ -1,5 +1,7 @@
 package com.brandon.finance.expense.service;
 
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -11,6 +13,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.brandon.finance.authentication.service.AuthenticatedUserService;
+import com.brandon.finance.expense.dto.ExpenseAnalysisDTO;
 import com.brandon.finance.expense.dto.ExpenseDTO;
 import com.brandon.finance.expense.entity.Expense;
 import com.brandon.finance.expense.mapper.ExpenseMapper;
@@ -63,7 +66,7 @@ public class ExpenseService {
         Page<Expense> expenses = expenseRepository.findByUserIdAndDateBetween(authenticatedUserService.getUserId(), startDate, endDate, pageable);
         List<ExpenseDTO> dtos = expenses.getContent()
             .stream()
-            .map(expenseMapper::toDTO)
+            .map(expenseMapper::toDTOByDateRanger)
             .collect(Collectors.toList());
         return new PageImpl<>(dtos, pageable, expenses.getTotalElements());
     }
@@ -92,5 +95,42 @@ public class ExpenseService {
     @Transactional
     public void delete(Long id) {
         expenseRepository.deleteById(id);
+    }
+
+    @Transactional(readOnly = true)
+    public ExpenseAnalysisDTO getExpenseAnalysis(LocalDate startDate, LocalDate endDate) {
+        Long userId = authenticatedUserService.getUserId();
+        List<Expense> expenses = expenseRepository.findByUserIdAndDateBetween(userId, startDate, endDate);
+        List<Expense> previousExpenses = expenseRepository.findByUserIdAndDateBetween(
+            userId,
+            startDate.minusMonths(1),
+            endDate.minusMonths(1)
+        );
+
+        BigDecimal totalSpent = sumAmounts(expenses);
+        BigDecimal previousPeriodTotal = sumAmounts(previousExpenses);
+        BigDecimal percentageChange = calculatePercentageChange(totalSpent, previousPeriodTotal);
+
+        ExpenseAnalysisDTO analysisDTO = new ExpenseAnalysisDTO();
+        analysisDTO.setTotalSpent(totalSpent);
+        analysisDTO.setPreviousPeriodTotal(previousPeriodTotal);
+        analysisDTO.setPercentageChange(percentageChange);
+        return analysisDTO;
+    }
+
+    private BigDecimal sumAmounts(List<Expense> expenses) {
+        return expenses.stream()
+            .map(Expense::getAmount)
+            .reduce(BigDecimal.ZERO, BigDecimal::add);
+    }
+
+    private BigDecimal calculatePercentageChange(BigDecimal currentTotal, BigDecimal previousTotal) {
+        if (previousTotal.compareTo(BigDecimal.ZERO) == 0) {
+            return BigDecimal.ZERO;
+        }
+
+        return currentTotal.subtract(previousTotal)
+            .multiply(BigDecimal.valueOf(100))
+            .divide(previousTotal, 2, RoundingMode.HALF_UP);
     }
 }

@@ -23,7 +23,8 @@ public class ExpenseMapper {
             expense.getDate(),
             expense.getUser() != null ? expense.getUser().getId() : null,
             expense.getCategory() != null ? expense.getCategory().getId() : null,
-            expense.getAccount() != null ? expense.getAccount().getId() : null
+            expense.getAccount() != null ? expense.getAccount().getId() : null,
+            expense.getCategory() != null ? expense.getCategory().getName() : null
         );
     }
 
@@ -40,5 +41,22 @@ public class ExpenseMapper {
         expense.setCategory(dto.getCategoryId() != null ? new Category(dto.getCategoryId()) : null);
         expense.setAccount(dto.getAccountId() != null ? new Account(dto.getAccountId()) : null);
         return expense;
+    }
+
+    public ExpenseDTO toDTOByDateRanger(Expense expense) {
+        if (expense == null) {
+            return null;
+        }
+
+        return new ExpenseDTO(
+            expense.getId(),
+            null,
+            expense.getAmount(),
+            expense.getDate(),
+            null,
+            null,
+            null,
+            expense.getCategory() != null ? expense.getCategory().getName() : null
+        );
     }
 }
