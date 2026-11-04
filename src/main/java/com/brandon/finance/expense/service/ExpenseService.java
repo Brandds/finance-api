@@ -15,9 +15,14 @@ import org.springframework.transaction.annotation.Transactional;
 import com.brandon.finance.authentication.service.AuthenticatedUserService;
 import com.brandon.finance.expense.dto.ExpenseAnalysisDTO;
 import com.brandon.finance.expense.dto.ExpenseDTO;
+import com.brandon.finance.expense.dto.ExpenseFilterRequest;
 import com.brandon.finance.expense.entity.Expense;
+import com.brandon.finance.expense.enums.PeriodType;
 import com.brandon.finance.expense.mapper.ExpenseMapper;
 import com.brandon.finance.expense.repository.ExpenseRepository;
+import com.brandon.finance.expense.specification.ExpenseSpecification;
+import com.brandon.finance.shared.base.enums.ErrorCode;
+import com.brandon.finance.shared.base.excepetion.BusinessException;
 
 import lombok.RequiredArgsConstructor;
 
@@ -28,6 +33,42 @@ public class ExpenseService {
     private final ExpenseRepository expenseRepository;
     private final ExpenseMapper expenseMapper;
     private final AuthenticatedUserService authenticatedUserService;
+
+    @Transactional(readOnly = true)
+    public Page<ExpenseDTO> filter(ExpenseFilterRequest filter, Pageable pageable) {
+        LocalDate startDate = filter.getStartDate();
+        LocalDate endDate = filter.getEndDate();
+        PeriodType period = filter.getPeriodType();
+        if (period != null) {
+            LocalDate today = LocalDate.now();
+            switch (period) {
+                case TODAY -> { startDate = today; endDate = today; }
+                case LAST_7_DAYS -> { startDate = today.minusDays(6); endDate = today; }
+                case CURRENT_MONTH -> {
+                    startDate = today.withDayOfMonth(1);
+                    endDate = today.withDayOfMonth(today.lengthOfMonth());
+                }
+                case CUSTOM -> {
+                    if (startDate == null || endDate == null) {
+                        throw new BusinessException(ErrorCode.VALIDATION_ERROR,
+                            "Período personalizado exige startDate e endDate");
+                    }
+                }
+            }
+        }
+        if (startDate != null && endDate != null && startDate.isAfter(endDate)) {
+            throw new BusinessException(ErrorCode.VALIDATION_ERROR, "startDate deve ser anterior ou igual a endDate");
+        }
+        if (filter.getMinAmount() != null && filter.getMaxAmount() != null
+                && filter.getMinAmount().compareTo(filter.getMaxAmount()) > 0) {
+            throw new BusinessException(ErrorCode.VALIDATION_ERROR, "minAmount deve ser menor ou igual a maxAmount");
+        }
+
+        return expenseRepository.findAll(ExpenseSpecification.filter(
+                authenticatedUserService.getUserId(), filter.getCategoryIds(), startDate, endDate,
+                filter.getMinAmount(), filter.getMaxAmount()), pageable)
+            .map(expenseMapper::toDTO);
+    }
 
     @Transactional
     public ExpenseDTO create(ExpenseDTO dto) {

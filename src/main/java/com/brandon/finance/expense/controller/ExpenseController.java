@@ -9,6 +9,7 @@ import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
@@ -18,6 +19,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.brandon.finance.expense.dto.ExpenseDTO;
+import com.brandon.finance.expense.dto.ExpenseFilterRequest;
 import com.brandon.finance.expense.dto.ExpenseAnalysisDTO;
 import com.brandon.finance.expense.service.ExpenseService;
 import com.brandon.finance.shared.base.response.ApiResponse;
@@ -45,7 +47,7 @@ public class ExpenseController {
         return ResponseUtil.created(created, "Despesa criada com sucesso");
     }
 
-    @GetMapping("/{id}")
+    @GetMapping("/{id:\\d+}")
     @Operation(summary = "Obter despesa por ID", description = "Retorna uma despesa específica")
     public ResponseEntity<ApiResponse<ExpenseDTO>> getById(@PathVariable Long id) {
         ExpenseDTO dto = expenseService.getById(id);
@@ -60,6 +62,15 @@ public class ExpenseController {
     public ResponseEntity<ApiResponse<Page<ExpenseDTO>>> getAllPage(Pageable pageable) {
         Page<ExpenseDTO> expenses = expenseService.getAllPage(pageable);
         return ResponseUtil.ok(expenses, "Despesas encontradas com sucesso");
+    }
+
+    @GetMapping("/filter")
+    @Operation(summary = "Filtrar despesas do usuário autenticado",
+        description = "Combina categorias (IDs separados por vírgula), período, valores e paginação. "
+            + "Períodos predefinidos substituem as datas informadas; CUSTOM exige ambas as datas.")
+    public ResponseEntity<ApiResponse<Page<ExpenseDTO>>> filter(
+            @Valid @ModelAttribute ExpenseFilterRequest filter, Pageable pageable) {
+        return ResponseUtil.ok(expenseService.filter(filter, pageable), "Despesas filtradas com sucesso");
     }
 
     @GetMapping("/category/{categoryId}")
@@ -86,7 +97,7 @@ public class ExpenseController {
         return ResponseUtil.ok(expenses, "Despesas encontradas com sucesso");
     }
 
-    @PutMapping("/{id}")
+    @PutMapping("/{id:\\d+}")
     @Operation(summary = "Atualizar despesa", description = "Atualiza uma despesa existente")
     public ResponseEntity<ApiResponse<ExpenseDTO>> update(
             @PathVariable Long id,
@@ -98,7 +109,7 @@ public class ExpenseController {
         return ResponseEntity.notFound().build();
     }
 
-    @DeleteMapping("/{id}")
+    @DeleteMapping("/{id:\\d+}")
     @Operation(summary = "Deletar despesa", description = "Remove uma despesa")
     public ResponseEntity<ApiResponse<Void>> delete(@PathVariable Long id) {
         expenseService.delete(id);

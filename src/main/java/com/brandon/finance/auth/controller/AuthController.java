@@ -8,6 +8,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.brandon.finance.auth.dto.ChangePasswordRequest;
 import com.brandon.finance.auth.dto.LoginRequest;
 import com.brandon.finance.auth.dto.LoginResponse;
 import com.brandon.finance.auth.service.AuthService;
@@ -20,6 +21,7 @@ import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
+import jakarta.validation.Valid;
 
 import com.brandon.finance.shared.constants.ApiPaths;
 
@@ -30,6 +32,13 @@ import com.brandon.finance.shared.constants.ApiPaths;
 public class AuthController {
     private final AuthService authService;
     private final EmailVerificationTokenServiceImpl emailVerificationTokenService;
+
+    @PostMapping("/change-password")
+    @Operation(summary = "Alterar senha do usuário autenticado")
+    public ResponseEntity<ApiResponse<Void>> changePassword(@Valid @RequestBody ChangePasswordRequest request) {
+        authService.changePassword(request);
+        return ResponseUtil.ok(null, "Senha alterada com sucesso");
+    }
 
     @PostMapping("/login")
     @Operation(
