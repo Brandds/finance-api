@@ -12,6 +12,8 @@ import com.brandon.finance.tag.entity.Tag;
 
 public interface TagRepository extends JpaRepository<Tag, Long> {
 
+    Optional<Tag> findByIdAndUserId(Long id, Long userId);
+
     Page<Tag> findByUserId(Long userId, Pageable pageable);
 
     List<Tag> findByUserId(Long userId);

@@ -14,6 +14,8 @@ import com.brandon.finance.financial_transaction.entity.FinancialTransaction.Tra
 @Repository
 public interface FinancialTransactionRepository extends JpaRepository<FinancialTransaction, Long> {
 
+    java.util.Optional<FinancialTransaction> findByIdAndUserId(Long id, Long userId);
+
     List<FinancialTransaction> findByUserId(Long userId);
 
     Page<FinancialTransaction> findByUserId(Long userId, Pageable pageable);

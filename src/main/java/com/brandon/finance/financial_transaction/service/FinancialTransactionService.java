@@ -11,6 +11,9 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.brandon.finance.authentication.service.AuthenticatedUserService;
+import com.brandon.finance.account.repository.AccountRepository;
+import com.brandon.finance.category.repository.CategoryRepository;
+import com.brandon.finance.shared.base.excepetion.ResourceNotFoundException;
 import com.brandon.finance.financial_transaction.dto.FinancialTransactionDTO;
 import com.brandon.finance.financial_transaction.entity.FinancialTransaction;
 import com.brandon.finance.financial_transaction.entity.FinancialTransaction.TransactionType;
@@ -26,19 +29,27 @@ public class FinancialTransactionService {
     private final FinancialTransactionRepository transactionRepository;
     private final FinancialTransactionMapper transactionMapper;
     private final AuthenticatedUserService authenticationService;
+    private final CategoryRepository categoryRepository;
+    private final AccountRepository accountRepository;
 
     @Transactional
     public FinancialTransactionDTO create(FinancialTransactionDTO dto) {
         FinancialTransaction transaction = transactionMapper.toEntity(dto);
+        transaction.setUser(authenticationService.getUser());
+        Long userId = transaction.getUser().getId();
+        transaction.setCategory(dto.getCategoryId() == null ? null
+            : categoryRepository.findByIdAndUserId(dto.getCategoryId(), userId)
+                .orElseThrow(() -> new ResourceNotFoundException("Categoria não encontrada")));
+        transaction.setAccount(dto.getAccountId() == null ? null
+            : accountRepository.findByIdAndUserId(dto.getAccountId(), userId)
+                .orElseThrow(() -> new ResourceNotFoundException("Conta não encontrada")));
         FinancialTransaction saved = transactionRepository.save(transaction);
         return transactionMapper.toDTO(saved);
     }
 
     @Transactional(readOnly = true)
     public FinancialTransactionDTO getById(Long id) {
-        return transactionRepository.findById(id)
-            .map(transactionMapper::toDTO)
-            .orElse(null);
+        return transactionMapper.toDTO(getOwnedTransaction(id));
     }
 
     @Transactional(readOnly = true)
@@ -89,7 +100,7 @@ public class FinancialTransactionService {
 
     @Transactional
     public FinancialTransactionDTO update(Long id, FinancialTransactionDTO dto) {
-        return transactionRepository.findById(id)
+        return transactionRepository.findByIdAndUserId(id, authenticationService.getUserId())
             .map(transaction -> {
                 transaction.setDescription(dto.getDescription());
                 transaction.setAmount(dto.getAmount());
@@ -98,11 +109,16 @@ public class FinancialTransactionService {
                 FinancialTransaction updated = transactionRepository.save(transaction);
                 return transactionMapper.toDTO(updated);
             })
-            .orElse(null);
+            .orElseThrow(() -> new ResourceNotFoundException("Transação não encontrada"));
     }
 
     @Transactional
     public void delete(Long id) {
-        transactionRepository.deleteById(id);
+        transactionRepository.delete(getOwnedTransaction(id));
+    }
+
+    private FinancialTransaction getOwnedTransaction(Long id) {
+        return transactionRepository.findByIdAndUserId(id, authenticationService.getUserId())
+            .orElseThrow(() -> new ResourceNotFoundException("Transação não encontrada"));
     }
 }

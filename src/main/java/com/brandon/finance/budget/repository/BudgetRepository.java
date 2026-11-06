@@ -13,6 +13,8 @@ import com.brandon.finance.budget.entity.Budget;
 @Repository
 public interface BudgetRepository extends JpaRepository<Budget, Long> {
 
+    Optional<Budget> findByIdAndUserId(Long id, Long userId);
+
     List<Budget> findByUserId(Long userId);
 
     Page<Budget> findByUserId(Long userId, Pageable pageable);

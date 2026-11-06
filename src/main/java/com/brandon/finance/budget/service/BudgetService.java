@@ -14,6 +14,8 @@ import com.brandon.finance.budget.dto.BudgetDTO;
 import com.brandon.finance.budget.entity.Budget;
 import com.brandon.finance.budget.mapper.BudgetMapper;
 import com.brandon.finance.budget.repository.BudgetRepository;
+import com.brandon.finance.category.repository.CategoryRepository;
+import com.brandon.finance.shared.base.excepetion.ResourceNotFoundException;
 
 import lombok.RequiredArgsConstructor;
 
@@ -24,19 +26,21 @@ public class BudgetService {
     private final BudgetRepository budgetRepository;
     private final BudgetMapper budgetMapper;
     private final AuthenticatedUserService authenticationService;
+    private final CategoryRepository categoryRepository;
 
     @Transactional
     public BudgetDTO create(BudgetDTO dto) {
         Budget budget = budgetMapper.toEntity(dto);
+        budget.setUser(authenticationService.getUser());
+        budget.setCategory(categoryRepository.findByIdAndUserId(dto.getCategoryId(), budget.getUser().getId())
+            .orElseThrow(() -> new ResourceNotFoundException("Categoria não encontrada")));
         Budget saved = budgetRepository.save(budget);
         return budgetMapper.toDTO(saved);
     }
 
     @Transactional(readOnly = true)
     public BudgetDTO getById(Long id) {
-        return budgetRepository.findById(id)
-            .map(budgetMapper::toDTO)
-            .orElse(null);
+        return budgetMapper.toDTO(getOwnedBudget(id));
     }
 
     @Transactional(readOnly = true)
@@ -98,7 +102,7 @@ public class BudgetService {
 
     @Transactional
     public BudgetDTO update(Long id, BudgetDTO dto) {
-        return budgetRepository.findById(id)
+        return budgetRepository.findByIdAndUserId(id, authenticationService.getUserId())
             .map(budget -> {
                 budget.setLimitAmount(dto.getLimitAmount());
                 budget.setMonth(dto.getMonth());
@@ -106,11 +110,16 @@ public class BudgetService {
                 Budget updated = budgetRepository.save(budget);
                 return budgetMapper.toDTO(updated);
             })
-            .orElse(null);
+            .orElseThrow(() -> new ResourceNotFoundException("Orçamento não encontrado"));
     }
 
     @Transactional
     public void delete(Long id) {
-        budgetRepository.deleteById(id);
+        budgetRepository.delete(getOwnedBudget(id));
+    }
+
+    private Budget getOwnedBudget(Long id) {
+        return budgetRepository.findByIdAndUserId(id, authenticationService.getUserId())
+            .orElseThrow(() -> new ResourceNotFoundException("Orçamento não encontrado"));
     }
 }

@@ -15,6 +15,8 @@ import com.brandon.finance.expense.entity.Expense;
 
 public interface ExpenseRepository extends JpaRepository<Expense,Long>, JpaSpecificationExecutor<Expense> {
 
+    Optional<Expense> findByIdAndUserId(Long id, Long userId);
+
     @Query("""
         select c.id as categoryId, c.name as categoryName, sum(e.amount) as amount
         from Expense e left join e.category c on c.user.id = :userId

@@ -16,6 +16,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.brandon.finance.authentication.service.AuthenticatedUserService;
+import com.brandon.finance.account.repository.AccountRepository;
+import com.brandon.finance.category.repository.CategoryRepository;
 import com.brandon.finance.expense.dto.ExpenseAnalysisDTO;
 import com.brandon.finance.expense.dto.ExpenseCategorySummaryDTO;
 import com.brandon.finance.expense.dto.ExpenseDTO;
@@ -29,6 +31,7 @@ import com.brandon.finance.expense.repository.ExpenseRepository;
 import com.brandon.finance.expense.specification.ExpenseSpecification;
 import com.brandon.finance.shared.base.enums.ErrorCode;
 import com.brandon.finance.shared.base.excepetion.BusinessException;
+import com.brandon.finance.shared.base.excepetion.ResourceNotFoundException;
 
 import lombok.RequiredArgsConstructor;
 
@@ -39,6 +42,8 @@ public class ExpenseService {
     private final ExpenseRepository expenseRepository;
     private final ExpenseMapper expenseMapper;
     private final AuthenticatedUserService authenticatedUserService;
+    private final CategoryRepository categoryRepository;
+    private final AccountRepository accountRepository;
 
     @Transactional(readOnly = true)
     public Page<ExpenseDTO> filter(ExpenseFilterRequest filter, Pageable pageable) {
@@ -79,15 +84,21 @@ public class ExpenseService {
     @Transactional
     public ExpenseDTO create(ExpenseDTO dto) {
         Expense expense = expenseMapper.toEntity(dto);
+        expense.setUser(authenticatedUserService.getUser());
+        Long userId = expense.getUser().getId();
+        expense.setCategory(dto.getCategoryId() == null ? null
+            : categoryRepository.findByIdAndUserId(dto.getCategoryId(), userId)
+                .orElseThrow(() -> new ResourceNotFoundException("Categoria não encontrada")));
+        expense.setAccount(dto.getAccountId() == null ? null
+            : accountRepository.findByIdAndUserId(dto.getAccountId(), userId)
+                .orElseThrow(() -> new ResourceNotFoundException("Conta não encontrada")));
         Expense saved = expenseRepository.save(expense);
         return expenseMapper.toDTO(saved);
     }
 
     @Transactional(readOnly = true)
     public ExpenseDTO getById(Long id) {
-        return expenseRepository.findById(id)
-            .map(expenseMapper::toDTO)
-            .orElse(null);
+        return expenseMapper.toDTO(getOwnedExpense(id));
     }
 
     @Transactional(readOnly = true)
@@ -128,7 +139,7 @@ public class ExpenseService {
 
     @Transactional
     public ExpenseDTO update(Long id, ExpenseDTO dto) {
-        return expenseRepository.findById(id)
+        return expenseRepository.findByIdAndUserId(id, authenticatedUserService.getUserId())
             .map(expense -> {
                 expense.setDescription(dto.getDescription());
                 expense.setAmount(dto.getAmount());
@@ -136,12 +147,17 @@ public class ExpenseService {
                 Expense updated = expenseRepository.save(expense);
                 return expenseMapper.toDTO(updated);
             })
-            .orElse(null);
+            .orElseThrow(() -> new ResourceNotFoundException("Despesa não encontrada"));
     }
 
     @Transactional
     public void delete(Long id) {
-        expenseRepository.deleteById(id);
+        expenseRepository.delete(getOwnedExpense(id));
+    }
+
+    private Expense getOwnedExpense(Long id) {
+        return expenseRepository.findByIdAndUserId(id, authenticatedUserService.getUserId())
+            .orElseThrow(() -> new ResourceNotFoundException("Despesa não encontrada"));
     }
 
     @Transactional(readOnly = true)
