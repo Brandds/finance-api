@@ -38,9 +38,7 @@ public class CategoryService {
 
     @Transactional(readOnly = true)
     public CategoryDTO getById(Long id) {
-        return categoryRepository.findById(id)
-            .map(categoryMapper::toDTO)
-            .orElse(null);
+        return categoryMapper.toDTO(getOwnedCategory(id));
     }
 
     @Transactional(readOnly = true)
@@ -75,17 +73,22 @@ public class CategoryService {
 
     @Transactional
     public CategoryDTO update(Long id, CategoryDTO dto) {
-        return categoryRepository.findById(id)
+        return categoryRepository.findByIdAndUserId(id, authenticationService.getUserId())
             .map(category -> {
                 category.setName(dto.getName());
                 Category updated = categoryRepository.save(category);
                 return categoryMapper.toDTO(updated);
             })
-            .orElse(null);
+            .orElseThrow(() -> new ResourceNotFoundException("Categoria não encontrada"));
     }
 
     @Transactional
     public void delete(Long id) {
-        categoryRepository.deleteById(id);
+        categoryRepository.delete(getOwnedCategory(id));
+    }
+
+    private Category getOwnedCategory(Long id) {
+        return categoryRepository.findByIdAndUserId(id, authenticationService.getUserId())
+            .orElseThrow(() -> new ResourceNotFoundException("Categoria não encontrada"));
     }
 }

@@ -6,7 +6,7 @@ import com.brandon.finance.tag.entity.Tag;
 import com.brandon.finance.tag.mapper.TagMapper;
 import com.brandon.finance.tag.repository.TagRepository;
 import com.brandon.finance.user.entity.User;
-import com.brandon.finance.user.repository.UserRepository;
+import com.brandon.finance.shared.base.excepetion.ResourceNotFoundException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
@@ -20,21 +20,18 @@ import java.util.stream.Collectors;
 public class TagService {
 
     private final TagRepository tagRepository;
-    private final UserRepository userRepository;
     private final TagMapper tagMapper;
     private final AuthenticatedUserService authenticatedUserService;
 
-    public TagService(TagRepository tagRepository, UserRepository userRepository, TagMapper tagMapper, AuthenticatedUserService authenticatedUserService) {
+    public TagService(TagRepository tagRepository, TagMapper tagMapper, AuthenticatedUserService authenticatedUserService) {
         this.tagRepository = tagRepository;
-        this.userRepository = userRepository;
         this.tagMapper = tagMapper;
         this.authenticatedUserService = authenticatedUserService;
     }
 
     @Transactional
-    public TagDTO create(TagDTO dto, Long userId) {
-        User user = userRepository.findById(userId)
-                .orElseThrow(() -> new RuntimeException("User not found: " + userId));
+    public TagDTO create(TagDTO dto) {
+        User user = authenticatedUserService.getUser();
 
         Tag tag = tagMapper.toEntity(dto, user);
         Tag saved = tagRepository.save(tag);
@@ -44,14 +41,12 @@ public class TagService {
 
     @Transactional(readOnly = true)
     public TagDTO getById(Long id) {
-        Tag tag = tagRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Tag not found: " + id));
-        return tagMapper.toDTO(tag);
+        return tagMapper.toDTO(getOwnedTag(id));
     }
 
     @Transactional(readOnly = true)
-    public Page<TagDTO> getByUserId(Long userId, Pageable pageable) {
-        Page<Tag> tags = tagRepository.findByUserId(userId, pageable);
+    public Page<TagDTO> getByUserId(Pageable pageable) {
+        Page<Tag> tags = tagRepository.findByUserId(authenticatedUserService.getUserId(), pageable);
         return new PageImpl<>(
                 tags.getContent().stream().map(tagMapper::toDTO).collect(Collectors.toList()),
                 pageable,
@@ -66,26 +61,21 @@ public class TagService {
     }
 
     @Transactional(readOnly = true)
-    public TagDTO getByName(Long userId, String name) {
-        Tag tag = tagRepository.findByUserIdAndName(userId, name)
-                .orElseThrow(() -> new RuntimeException("Tag not found: " + name));
+    public TagDTO getByName(String name) {
+        Tag tag = tagRepository.findByUserIdAndName(authenticatedUserService.getUserId(), name)
+                .orElseThrow(() -> new ResourceNotFoundException("Tag não encontrada"));
         return tagMapper.toDTO(tag);
     }
 
     @Transactional(readOnly = true)
-    public List<TagDTO> searchByName(Long userId, String nameContains) {
-        List<Tag> tags = tagRepository.findByUserIdAndNameContainingIgnoreCase(userId, nameContains);
+    public List<TagDTO> searchByName(String nameContains) {
+        List<Tag> tags = tagRepository.findByUserIdAndNameContainingIgnoreCase(authenticatedUserService.getUserId(), nameContains);
         return tags.stream().map(tagMapper::toDTO).collect(Collectors.toList());
     }
 
     @Transactional
-    public TagDTO update(Long id, TagDTO dto, Long userId) {
-        Tag tag = tagRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Tag not found: " + id));
-
-        if (!tag.getUser().getId().equals(userId)) {
-            throw new RuntimeException("Unauthorized: Tag does not belong to user " + userId);
-        }
+    public TagDTO update(Long id, TagDTO dto) {
+        Tag tag = getOwnedTag(id);
 
         tag.setName(dto.getName());
         Tag updated = tagRepository.save(tag);
@@ -94,14 +84,12 @@ public class TagService {
     }
 
     @Transactional
-    public void delete(Long id, Long userId) {
-        Tag tag = tagRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Tag not found: " + id));
+    public void delete(Long id) {
+        tagRepository.delete(getOwnedTag(id));
+    }
 
-        if (!tag.getUser().getId().equals(userId)) {
-            throw new RuntimeException("Unauthorized: Tag does not belong to user " + userId);
-        }
-
-        tagRepository.deleteById(id);
+    private Tag getOwnedTag(Long id) {
+        return tagRepository.findByIdAndUserId(id, authenticatedUserService.getUserId())
+            .orElseThrow(() -> new ResourceNotFoundException("Tag não encontrada"));
     }
 }

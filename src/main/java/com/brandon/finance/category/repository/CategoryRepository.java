@@ -12,6 +12,8 @@ import com.brandon.finance.category.entity.Category;
 @Repository
 public interface CategoryRepository extends JpaRepository<Category, Long> {
 
+    java.util.Optional<Category> findByIdAndUserId(Long id, Long userId);
+
     List<Category> findByUserId(Long userId);
 
     Page<Category> findByUserId(Long userId, Pageable pageable);

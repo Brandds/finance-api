@@ -13,6 +13,8 @@ import com.brandon.finance.account.entity.Account.AccountType;
 @Repository
 public interface AccountRepository extends JpaRepository<Account, Long> {
 
+    java.util.Optional<Account> findByIdAndUserId(Long id, Long userId);
+
     List<Account> findByUserId(Long userId);
 
     Page<Account> findByUserId(Long userId, Pageable pageable);

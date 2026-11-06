@@ -24,7 +24,7 @@ import lombok.RequiredArgsConstructor;
 @RestController
 @RequestMapping(ApiPaths.AUDIT_LOGS)
 @RequiredArgsConstructor
-@Tag(name = "Audit Logs", description = "Endpoints para consultar logs de auditoria")
+@Tag(name = "Audit Logs", description = "Consulta global de auditoria restrita a administradores")
 public class AuditLogController {
     
     private final AuditLogService auditLogService;

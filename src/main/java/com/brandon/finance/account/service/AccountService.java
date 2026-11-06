@@ -15,6 +15,7 @@ import com.brandon.finance.account.entity.Account.AccountType;
 import com.brandon.finance.account.mapper.AccountMapper;
 import com.brandon.finance.account.repository.AccountRepository;
 import com.brandon.finance.authentication.service.AuthenticatedUserService;
+import com.brandon.finance.shared.base.excepetion.ResourceNotFoundException;
 
 import lombok.RequiredArgsConstructor;
 
@@ -30,15 +31,14 @@ public class AccountService {
     @Transactional
     public AccountDTO create(AccountDTO dto) {
         Account account = accountMapper.toEntity(dto);
+        account.setUser(authenticationService.getUser());
         Account saved = accountRepository.save(account);
         return accountMapper.toDTO(saved);
     }
 
     @Transactional(readOnly = true)
     public AccountDTO getById(Long id) {
-        return accountRepository.findById(id)
-            .map(accountMapper::toDTO)
-            .orElse(null);
+        return accountMapper.toDTO(getOwnedAccount(id));
     }
 
     @Transactional(readOnly = true)
@@ -75,18 +75,23 @@ public class AccountService {
 
     @Transactional
     public AccountDTO update(Long id, AccountDTO dto) {
-        return accountRepository.findById(id)
+        return accountRepository.findByIdAndUserId(id, authenticationService.getUserId())
             .map(account -> {
                 account.setName(dto.getName());
                 account.setType(dto.getType());
                 Account updated = accountRepository.save(account);
                 return accountMapper.toDTO(updated);
             })
-            .orElse(null);
+            .orElseThrow(() -> new ResourceNotFoundException("Conta não encontrada"));
     }
 
     @Transactional
     public void delete(Long id) {
-        accountRepository.deleteById(id);
+        accountRepository.delete(getOwnedAccount(id));
+    }
+
+    private Account getOwnedAccount(Long id) {
+        return accountRepository.findByIdAndUserId(id, authenticationService.getUserId())
+            .orElseThrow(() -> new ResourceNotFoundException("Conta não encontrada"));
     }
 }

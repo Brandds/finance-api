@@ -28,8 +28,8 @@ public class TagController {
 
     @PostMapping
     @Operation(summary = "Criar nova tag", description = "Cria uma nova tag para o usuário autenticado")
-    public ResponseEntity<ApiResponse<TagDTO>> create(@RequestBody TagDTO dto, @RequestParam Long userId) {
-        TagDTO created = tagService.create(dto, userId);
+    public ResponseEntity<ApiResponse<TagDTO>> create(@RequestBody TagDTO dto) {
+        TagDTO created = tagService.create(dto);
         return ResponseUtil.created(created, "Tag created successfully");
     }
 
@@ -42,8 +42,8 @@ public class TagController {
 
     @GetMapping()
     @Operation(summary = "Listar tags paginado", description = "Retorna todas as tags do usuário (paginado)")
-    public ResponseEntity<ApiResponse<Page<TagDTO>>> getByUserId(@RequestParam Long userId, Pageable pageable) {
-        Page<TagDTO> tags = tagService.getByUserId(userId, pageable);
+    public ResponseEntity<ApiResponse<Page<TagDTO>>> getByUserId(Pageable pageable) {
+        Page<TagDTO> tags = tagService.getByUserId(pageable);
         return ResponseUtil.ok(tags, "Tags retrieved successfully");
     }
 
@@ -56,29 +56,29 @@ public class TagController {
 
     @GetMapping("/search/name")
     @Operation(summary = "Buscar tag por nome", description = "Retorna uma tag específica pelo nome do usuário")
-    public ResponseEntity<ApiResponse<TagDTO>> getByName(@RequestParam Long userId, @RequestParam String name) {
-        TagDTO tag = tagService.getByName(userId, name);
+    public ResponseEntity<ApiResponse<TagDTO>> getByName(@RequestParam String name) {
+        TagDTO tag = tagService.getByName(name);
         return ResponseUtil.ok(tag, "Tag retrieved successfully");
     }
 
     @GetMapping("/search")
     @Operation(summary = "Buscar tags por nome parcial", description = "Busca tags que contenham o texto fornecido no nome")
-    public ResponseEntity<ApiResponse<List<TagDTO>>> searchByName(@RequestParam Long userId, @RequestParam String search) {
-        List<TagDTO> tags = tagService.searchByName(userId, search);
+    public ResponseEntity<ApiResponse<List<TagDTO>>> searchByName(@RequestParam String search) {
+        List<TagDTO> tags = tagService.searchByName(search);
         return ResponseUtil.ok(tags, "Tags retrieved successfully");
     }
 
     @PutMapping("/{id}")
     @Operation(summary = "Atualizar tag", description = "Atualiza os dados de uma tag existente")
-    public ResponseEntity<ApiResponse<TagDTO>> update(@PathVariable Long id, @RequestBody TagDTO dto, @RequestParam Long userId) {
-        TagDTO updated = tagService.update(id, dto, userId);
+    public ResponseEntity<ApiResponse<TagDTO>> update(@PathVariable Long id, @RequestBody TagDTO dto) {
+        TagDTO updated = tagService.update(id, dto);
         return ResponseUtil.ok(updated, "Tag updated successfully");
     }
 
     @DeleteMapping("/{id}")
     @Operation(summary = "Deletar tag", description = "Remove uma tag existente")
-    public ResponseEntity<ApiResponse<Void>> delete(@PathVariable Long id, @RequestParam Long userId) {
-        tagService.delete(id, userId);
+    public ResponseEntity<ApiResponse<Void>> delete(@PathVariable Long id) {
+        tagService.delete(id);
         return ResponseUtil.noContent("Tag deleted successfully");
     }
 }
