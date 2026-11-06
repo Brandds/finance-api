@@ -23,8 +23,12 @@ import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
+import org.springframework.context.annotation.Import;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.mock.web.MockHttpServletRequest;
@@ -47,6 +51,7 @@ import com.brandon.finance.expense.dto.ExpenseFilterRequest;
 import com.brandon.finance.expense.enums.PeriodType;
 import com.brandon.finance.expense.service.ExpenseService;
 import com.brandon.finance.shared.base.enums.ErrorCode;
+import com.brandon.finance.shared.base.response.PageSerializer;
 import com.brandon.finance.shared.base.excepetion.CustomAccessDeniedHandler;
 import com.brandon.finance.shared.base.excepetion.CustomAuthenticationEntryPoint;
 import com.brandon.finance.shared.base.excepetion.GlobalExceptionHandler;
@@ -56,6 +61,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 @WebMvcTest(properties = "app.cors.allowed-origins=http://localhost:8081,http://localhost:19006")
 @ContextConfiguration(classes = {AuthController.class, ExpenseController.class, SecurityConfig.class,
     JwtFilter.class, CustomAccessDeniedHandler.class, CustomAuthenticationEntryPoint.class, GlobalExceptionHandler.class})
+@Import(PageSerializer.class)
 class ContractsWebTest {
     @Autowired MockMvc mvc;
     @Autowired ObjectMapper objectMapper;
@@ -112,6 +118,27 @@ class ContractsWebTest {
                 .content("{\"currentPassword\":\"\",\"newPassword\":\"short\"}"))
             .andExpect(status().isBadRequest()).andExpect(jsonPath("$.errorCode").value("VALIDATION_ERROR"));
         verify(authService, never()).changePassword(any());
+    }
+
+    @Test
+    void preservesPaginationMetadataInFilteredResponse() throws Exception {
+        authenticate();
+        when(expenseService.filter(any(), any())).thenReturn(new PageImpl<>(
+            List.of(new ExpenseDTO(), new ExpenseDTO()), PageRequest.of(1, 2, Sort.by("amount").descending()), 5));
+
+        mvc.perform(get("/api/v1/expenses/filter").header(HttpHeaders.AUTHORIZATION, "Bearer valid-token")
+                .param("page", "1").param("size", "2").param("sort", "amount,desc"))
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$.data.content.length()").value(2))
+            .andExpect(jsonPath("$.data.totalElements").value(5))
+            .andExpect(jsonPath("$.data.totalPages").value(3))
+            .andExpect(jsonPath("$.data.number").value(1))
+            .andExpect(jsonPath("$.data.size").value(2))
+            .andExpect(jsonPath("$.data.first").value(false))
+            .andExpect(jsonPath("$.data.last").value(false))
+            .andExpect(jsonPath("$.data.pageable.offset").value(2))
+            .andExpect(jsonPath("$.data.sort.sorted").value(true))
+            .andExpect(jsonPath("$.message").value("Despesas filtradas com sucesso"));
     }
 
     @Test
