@@ -33,7 +33,7 @@ public class AuthHelper {
         if (!user.isEnabled()) {
             throw new BusinessException(
                 ErrorCode.EMAIL_NOT_VERIFIED,
-                "Você preicsa verificar seu e-mail antes de fazer login. Por favor, verifique sua caixa de entrada para o e-mail de verificação."
+                "Você precisa verificar seu e-mail antes de fazer login. Por favor, verifique sua caixa de entrada para o e-mail de verificação."
             );
         }
     }

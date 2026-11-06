@@ -66,7 +66,7 @@ public class UserController {
     }
 
     @GetMapping("/all")
-    @Operation(summary = "Listar todos os usuários", description = "Retorna lista de todos os usuários")
+    @Operation(summary = "Listar todos os usuários", description = "Retorna lista de todos os usuários, apenas para administradores")
     @ApiResponses(value = {
         @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "Lista de usuários retornada",
             content = @Content(mediaType = "application/json")),
@@ -78,7 +78,7 @@ public class UserController {
     }
 
     @PutMapping("/{id}")
-    @Operation(summary = "Atualizar usuário", description = "Atualiza os dados de um usuário específico")
+    @Operation(summary = "Atualizar usuário", description = "Atualiza os dados do próprio usuário autenticado pelo ID")
     @ApiResponses(value = {
         @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "Usuário atualizado com sucesso",
             content = @Content(mediaType = "application/json")),

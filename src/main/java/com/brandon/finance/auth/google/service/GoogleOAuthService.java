@@ -105,6 +105,7 @@ public class GoogleOAuthService {
                             .map(existingUser -> {
                                 existingUser.setGoogleId(info.sub());
                                 existingUser.updateFromGoogleInfo(info.name(), info.picture());
+                                existingUser.setEnabled(true);
                                 return userRepository.save(existingUser);
                             })
                             .orElseGet(() -> {
@@ -114,6 +115,7 @@ public class GoogleOAuthService {
                                 newUser.setName(info.name());
                                 newUser.setGoogleId(info.sub());
                                 newUser.setGooglePictureUrl(info.picture());
+                                newUser.setEnabled(true);
 
                                 return userRepository.save(newUser);
                             });

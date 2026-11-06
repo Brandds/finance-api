@@ -23,8 +23,7 @@ public class EmailVerificationTokenServiceImpl {
     private final EmailVerificationTokenMapper emailVerificationTokenMapper;
     private final UserRepository userRepository;
 
-    @Transactional(readOnly = false)  
-
+    @Transactional
     public EmailVerificationToken create(String token, User user) {
         return save(emailVerificationTokenMapper.toCreateEntity(token, user));
     }
@@ -34,7 +33,11 @@ public class EmailVerificationTokenServiceImpl {
         return emailVerificationTokenRepository.save(emailVerificationToken);
     }
 
+    @Transactional
     public void verifyEmail(String token) {
+        if (token == null || token.isBlank()) {
+            throw new BusinessException(ErrorCode.INVALID_TOKEN, "Token inválido.");
+        }
 
         EmailVerificationToken verificationToken =
                 emailVerificationTokenRepository.findByToken(token)
@@ -51,7 +54,7 @@ public class EmailVerificationTokenServiceImpl {
             );
         }
 
-        if (verificationToken.getExpiresAt().isBefore(LocalDateTime.now())) {
+        if (!verificationToken.getExpiresAt().isAfter(LocalDateTime.now())) {
             throw new BusinessException(
                     ErrorCode.TOKEN_EXPIRED,
                     "O link expirou."

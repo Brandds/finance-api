@@ -8,6 +8,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authorization.AuthorizationDeniedException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
+import org.springframework.web.bind.MissingServletRequestParameterException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.servlet.NoHandlerFoundException;
@@ -75,6 +76,17 @@ public class GlobalExceptionHandler {
             HttpStatus.NOT_FOUND,
             ErrorCode.RESOURCE_NOT_FOUND.name(),
             "Endpoint não encontrado",
+            request
+        );
+    }
+
+    @ExceptionHandler(MissingServletRequestParameterException.class)
+    public ResponseEntity<ApiError> handleMissingParameter(
+            MissingServletRequestParameterException ex, HttpServletRequest request) {
+        return buildError(
+            HttpStatus.BAD_REQUEST,
+            ErrorCode.VALIDATION_ERROR.name(),
+            "Parâmetro obrigatório ausente: " + ex.getParameterName(),
             request
         );
     }

@@ -74,15 +74,11 @@ public class CategoryController {
     }
 
     @GetMapping("/name")
-    @Operation(summary = "Buscar categoria por nome", description = "Retorna uma categoria específica pelo nome do usuário")
+    @Operation(summary = "Buscar categoria por nome", description = "Retorna uma categoria do usuário autenticado pelo nome")
     public ResponseEntity<ApiResponse<CategoryDTO>> getByUserIdAndName(
-            @PathVariable Long userId,
             @RequestParam String name) {
-        CategoryDTO dto = categoryService.getByUserIdAndName(userId, name);
-        if (dto != null) {
-            return ResponseUtil.ok(dto, "Categoria encontrada com sucesso");
-        }
-        return ResponseEntity.notFound().build();
+        CategoryDTO dto = categoryService.getByUserIdAndName(name);
+        return ResponseUtil.ok(dto, "Categoria encontrada com sucesso");
     }
 
     @PutMapping("/{id}")

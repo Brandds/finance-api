@@ -14,6 +14,9 @@ import com.brandon.finance.category.dto.CategoryDTO;
 import com.brandon.finance.category.entity.Category;
 import com.brandon.finance.category.mapper.CategoryMapper;
 import com.brandon.finance.category.repository.CategoryRepository;
+import com.brandon.finance.shared.base.enums.ErrorCode;
+import com.brandon.finance.shared.base.excepetion.BusinessException;
+import com.brandon.finance.shared.base.excepetion.ResourceNotFoundException;
 
 import lombok.RequiredArgsConstructor;
 
@@ -59,8 +62,14 @@ public class CategoryService {
     }
 
     @Transactional(readOnly = true)
-    public CategoryDTO getByUserIdAndName(Long userId, String name) {
-        Category category = categoryRepository.findByUserIdAndName(userId, name);
+    public CategoryDTO getByUserIdAndName(String name) {
+        if (name == null || name.isBlank()) {
+            throw new BusinessException(ErrorCode.VALIDATION_ERROR, "Nome da categoria obrigatório");
+        }
+        Category category = categoryRepository.findByUserIdAndName(authenticationService.getUserId(), name);
+        if (category == null) {
+            throw new ResourceNotFoundException("Categoria não encontrada");
+        }
         return categoryMapper.toDTO(category);
     }
 

@@ -7,6 +7,8 @@ import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import java.util.Optional;
+
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -17,6 +19,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 
 import com.brandon.finance.auth.dto.ChangePasswordRequest;
+import com.brandon.finance.auth.dto.LoginRequest;
 import com.brandon.finance.auth.helper.AuthHelper;
 import com.brandon.finance.authentication.service.AuthenticatedUserService;
 import com.brandon.finance.shared.base.enums.ErrorCode;
@@ -131,5 +134,33 @@ class AuthServiceTest {
             .isInstanceOfSatisfying(BusinessException.class,
                 error -> assertThat(error.getErrorCode()).isEqualTo(ErrorCode.VALIDATION_ERROR));
         verify(userRepository, never()).save(any());
+    }
+
+    @Test
+    void rejectsLoginBeforeEmailConfirmationWithoutIssuingJwt() {
+        user.setEnabled(false);
+        when(userRepository.findByEmail("owner@example.test")).thenReturn(Optional.of(user));
+        when(passwordEncoder.matches("password", "stored-hash")).thenReturn(true);
+
+        assertThatThrownBy(() -> loginService().login(new LoginRequest("owner@example.test", "password")))
+            .isInstanceOfSatisfying(BusinessException.class,
+                error -> assertThat(error.getErrorCode()).isEqualTo(ErrorCode.EMAIL_NOT_VERIFIED));
+        verify(jwtService, never()).generateToken(any());
+    }
+
+    @Test
+    void issuesJwtAfterEmailConfirmation() {
+        user.setEnabled(true);
+        when(userRepository.findByEmail("owner@example.test")).thenReturn(Optional.of(user));
+        when(passwordEncoder.matches("password", "stored-hash")).thenReturn(true);
+        when(jwtService.generateToken(user)).thenReturn("jwt");
+
+        assertThat(loginService().login(new LoginRequest("owner@example.test", "password")).token())
+            .isEqualTo("jwt");
+    }
+
+    private AuthService loginService() {
+        return new AuthService(userRepository, jwtService, new UserMapper(), new AuthHelper(passwordEncoder),
+            authenticatedUserService, passwordEncoder);
     }
 }

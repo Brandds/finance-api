@@ -56,7 +56,7 @@ public class User extends AuditableEntity {
     private String cpf;
 
     @Column(nullable = false)
-    private boolean enabled = true;
+    private boolean enabled = false;
 
     public User(Long id){
         super(id);
