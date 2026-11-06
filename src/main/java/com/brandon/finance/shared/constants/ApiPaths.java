@@ -15,5 +15,6 @@ public final class ApiPaths {
     public static final String ACCOUNTS = API_V1 + "/accounts";
     public static final String FINANCIAL_TRANSACTIONS = API_V1 + "/financial-transactions";
     public static final String EXPENSE_TAGS = API_V1 + "/expense-tags";
+    public static final String NOTIFICATIONS = API_V1 + "/notifications";
     public static final String AUTH_GOOGLE = AUTH + "/google";
 }
