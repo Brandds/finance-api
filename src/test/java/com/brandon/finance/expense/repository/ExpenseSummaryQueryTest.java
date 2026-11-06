@@ -5,6 +5,7 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verifyNoInteractions;
 
 import java.util.Map;
+import java.util.List;
 
 import javax.sql.DataSource;
 
@@ -12,6 +13,13 @@ import org.junit.jupiter.api.Test;
 import org.springframework.data.jpa.repository.support.JpaRepositoryFactory;
 import org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean;
 import org.springframework.orm.jpa.vendor.HibernateJpaVendorAdapter;
+
+import com.brandon.finance.account.repository.AccountRepository;
+import com.brandon.finance.category.repository.CategoryRepository;
+import com.brandon.finance.budget.repository.BudgetRepository;
+import com.brandon.finance.financial_transaction.repository.FinancialTransactionRepository;
+import com.brandon.finance.tag.repository.TagRepository;
+import com.brandon.finance.expense_tag.repository.ExpenseTagRepository;
 
 /** Valida JPQL no Hibernate real sem conectar ao banco; não substitui a execução em PostgreSQL. */
 class ExpenseSummaryQueryTest {
@@ -29,8 +37,11 @@ class ExpenseSummaryQueryTest {
         factory.afterPropertiesSet();
         try (var entityManager = factory.getObject().createEntityManager()) {
             // Spring Data valida as consultas @Query ao construir o repositório.
-            var repository = new JpaRepositoryFactory(entityManager).getRepository(ExpenseRepository.class);
-            assertThat(repository).isNotNull();
+            var repositories = new JpaRepositoryFactory(entityManager);
+            for (Class<?> type : List.of(ExpenseRepository.class, AccountRepository.class, CategoryRepository.class,
+                    BudgetRepository.class, FinancialTransactionRepository.class, TagRepository.class, ExpenseTagRepository.class)) {
+                assertThat(repositories.getRepository(type)).isNotNull();
+            }
             verifyNoInteractions(dataSource);
         } finally {
             factory.destroy();

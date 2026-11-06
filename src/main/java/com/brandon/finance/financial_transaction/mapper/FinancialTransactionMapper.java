@@ -13,14 +13,21 @@ public class FinancialTransactionMapper {
             return null;
         }
 
+        var category = transaction.getCategory();
+        var account = transaction.getAccount();
+        var user = transaction.getUser();
+        boolean ownsCategory = category != null && category.getUser() != null && user != null
+            && user.getId().equals(category.getUser().getId());
+        boolean ownsAccount = account != null && account.getUser() != null && user != null
+            && user.getId().equals(account.getUser().getId());
         return new FinancialTransactionDTO(
             transaction.getId(),
             transaction.getDescription(),
             transaction.getAmount(),
             transaction.getDate(),
             transaction.getType(),
-            transaction.getCategory() != null ? transaction.getCategory().getId() : null,
-            transaction.getAccount() != null ? transaction.getAccount().getId() : null,
+            ownsCategory ? category.getId() : null,
+            ownsAccount ? account.getId() : null,
             transaction.getUser() != null ? transaction.getUser().getId() : null
         );
     }

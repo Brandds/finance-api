@@ -15,10 +15,13 @@ public class BudgetMapper {
             return null;
         }
 
+        Category category = budget.getCategory();
+        boolean ownsCategory = category != null && category.getUser() != null && budget.getUser() != null
+            && budget.getUser().getId().equals(category.getUser().getId());
         return new BudgetDTO(
             budget.getId(),
             budget.getUser() != null ? budget.getUser().getId() : null,
-            budget.getCategory() != null ? budget.getCategory().getId() : null,
+            ownsCategory ? category.getId() : null,
             budget.getLimitAmount(),
             budget.getMonth(),
             budget.getYear()

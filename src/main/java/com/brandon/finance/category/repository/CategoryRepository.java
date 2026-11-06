@@ -1,6 +1,7 @@
 package com.brandon.finance.category.repository;
 
 import java.util.List;
+import java.util.Optional;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -12,7 +13,7 @@ import com.brandon.finance.category.entity.Category;
 @Repository
 public interface CategoryRepository extends JpaRepository<Category, Long> {
 
-    java.util.Optional<Category> findByIdAndUserId(Long id, Long userId);
+    Optional<Category> findByIdAndUserId(Long id, Long userId);
 
     List<Category> findByUserId(Long userId);
 

@@ -32,6 +32,8 @@ import com.brandon.finance.expense.controller.ExpenseController;
 import com.brandon.finance.expense.mapper.ExpenseMapper;
 import com.brandon.finance.expense.repository.ExpenseRepository;
 import com.brandon.finance.expense.repository.CategoryExpenseTotal;
+import com.brandon.finance.account.repository.AccountRepository;
+import com.brandon.finance.category.repository.CategoryRepository;
 import com.brandon.finance.expense.service.ExpenseService;
 import com.brandon.finance.shared.base.excepetion.CustomAccessDeniedHandler;
 import com.brandon.finance.shared.base.excepetion.CustomAuthenticationEntryPoint;
@@ -45,6 +47,8 @@ import com.brandon.finance.user.repository.UserRepository;
 class ExpenseSummaryWebTest {
     @Autowired MockMvc mvc;
     @MockitoBean ExpenseRepository repository;
+    @MockitoBean CategoryRepository categoryRepository;
+    @MockitoBean AccountRepository accountRepository;
     @MockitoBean ExpenseMapper mapper;
     @MockitoBean UserRepository userRepository;
     @MockitoBean JwtService jwtService;

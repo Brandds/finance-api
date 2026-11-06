@@ -16,15 +16,19 @@ public class ExpenseMapper {
             return null;
         }
 
+        Category category = ownedCategory(expense);
+        Account account = expense.getAccount();
+        boolean ownsAccount = account != null && account.getUser() != null && expense.getUser() != null
+            && expense.getUser().getId().equals(account.getUser().getId());
         return new ExpenseDTO(
             expense.getId(),
             expense.getDescription(),
             expense.getAmount(),
             expense.getDate(),
             expense.getUser() != null ? expense.getUser().getId() : null,
-            expense.getCategory() != null ? expense.getCategory().getId() : null,
-            expense.getAccount() != null ? expense.getAccount().getId() : null,
-            expense.getCategory() != null ? expense.getCategory().getName() : null
+            category != null ? category.getId() : null,
+            ownsAccount ? account.getId() : null,
+            category != null ? category.getName() : null
         );
     }
 
@@ -48,6 +52,7 @@ public class ExpenseMapper {
             return null;
         }
 
+        Category category = ownedCategory(expense);
         return new ExpenseDTO(
             expense.getId(),
             null,
@@ -56,7 +61,14 @@ public class ExpenseMapper {
             null,
             null,
             null,
-            expense.getCategory() != null ? expense.getCategory().getName() : null
+            category != null ? category.getName() : null
         );
+    }
+
+    // Referências legadas entre usuários não podem revelar o nome de uma categoria alheia.
+    private Category ownedCategory(Expense expense) {
+        Category category = expense.getCategory();
+        return category != null && category.getUser() != null && expense.getUser() != null
+            && expense.getUser().getId().equals(category.getUser().getId()) ? category : null;
     }
 }

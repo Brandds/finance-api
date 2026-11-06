@@ -2,6 +2,7 @@ package com.brandon.finance.financial_transaction.repository;
 
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Optional;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -14,7 +15,7 @@ import com.brandon.finance.financial_transaction.entity.FinancialTransaction.Tra
 @Repository
 public interface FinancialTransactionRepository extends JpaRepository<FinancialTransaction, Long> {
 
-    java.util.Optional<FinancialTransaction> findByIdAndUserId(Long id, Long userId);
+    Optional<FinancialTransaction> findByIdAndUserId(Long id, Long userId);
 
     List<FinancialTransaction> findByUserId(Long userId);
 

@@ -28,6 +28,8 @@ import org.springframework.test.context.bean.override.mockito.MockitoBean;
 
 import com.brandon.finance.authentication.service.AuthenticatedUserService;
 import com.brandon.finance.category.entity.Category;
+import com.brandon.finance.category.repository.CategoryRepository;
+import com.brandon.finance.account.repository.AccountRepository;
 import com.brandon.finance.category.enums.CategoryIconEnum;
 import com.brandon.finance.expense.dto.ExpenseFilterRequest;
 import com.brandon.finance.expense.dto.ExpenseCategorySummaryDTO;
@@ -54,7 +56,7 @@ import com.brandon.finance.user.enums.Role;
 class ExpenseFilterRepositoryTest {
     @Configuration
     @EntityScan("com.brandon.finance")
-    @EnableJpaRepositories(basePackageClasses = ExpenseRepository.class)
+    @EnableJpaRepositories(basePackageClasses = {ExpenseRepository.class, CategoryRepository.class, AccountRepository.class})
     @EnableJpaAuditing
     static class JpaConfig {}
 
