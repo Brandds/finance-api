@@ -30,6 +30,7 @@ import com.brandon.finance.authentication.service.AuthenticatedUserService;
 import com.brandon.finance.category.entity.Category;
 import com.brandon.finance.category.enums.CategoryIconEnum;
 import com.brandon.finance.expense.dto.ExpenseFilterRequest;
+import com.brandon.finance.expense.dto.ExpenseCategorySummaryDTO;
 import com.brandon.finance.expense.entity.Expense;
 import com.brandon.finance.expense.enums.PeriodType;
 import com.brandon.finance.expense.mapper.ExpenseMapper;
@@ -158,6 +159,60 @@ class ExpenseFilterRepositoryTest {
 
         assertThat(service.filter(filter, PageRequest.of(0, 20, Sort.by("id"))).getContent())
             .extracting(dto -> dto.getId()).containsExactly(lower.getId(), upper.getId());
+    }
+
+    @Test
+    void summarizesOnlyOwnedExpensesWithInclusiveBoundsAndKeepsUncategorizedAmounts() {
+        var start = LocalDate.of(2024, 3, 1);
+        var end = LocalDate.of(2024, 3, 31);
+        var foreignCategory = category("Private category", other);
+        expense(owner, food, start, "60");
+        expense(owner, food, end, "40");
+        expense(owner, transport, start, "40");
+        expense(owner, null, start, "10");
+        // Uma referência legada a categoria alheia não deve revelar seu ID/nome.
+        expense(owner, foreignCategory, start, "50");
+        expense(other, foreignCategory, start, "9999");
+        expense(other, foreignCategory, start.minusDays(1), "9999");
+        expense(owner, food, LocalDate.of(2024, 1, 30), "10");
+        expense(owner, food, LocalDate.of(2024, 2, 29), "10");
+        expense(owner, food, LocalDate.of(2024, 1, 29), "9999");
+        expense(owner, food, end.plusDays(1), "9999");
+        entityManager.flush();
+        entityManager.clear();
+
+        var result = service.getExpenseAnalysis(start, end);
+
+        assertThat(result.getTotalSpent()).isEqualByComparingTo("200");
+        assertThat(result.getPreviousPeriodTotal()).isEqualByComparingTo("20");
+        assertThat(result.getPercentageChange()).isEqualByComparingTo("900");
+        assertThat(result.getPreviousStartDate()).isEqualTo(LocalDate.of(2024, 1, 30));
+        assertThat(result.getPreviousEndDate()).isEqualTo(LocalDate.of(2024, 2, 29));
+        assertThat(result.getCategories()).extracting(ExpenseCategorySummaryDTO::categoryName)
+            .containsExactly("Food", "Sem categoria", "Transport");
+        assertThat(result.getCategories()).extracting(ExpenseCategorySummaryDTO::amount)
+            .usingComparatorForType(BigDecimal::compareTo, BigDecimal.class)
+            .containsExactly(new BigDecimal("100"), new BigDecimal("60"), new BigDecimal("40"));
+        assertThat(result.getCategories().stream().map(ExpenseCategorySummaryDTO::percentage)
+            .reduce(BigDecimal.ZERO, BigDecimal::add)).isEqualByComparingTo("100");
+        assertThat(result.getInsight().categoryId()).isEqualTo(food.getId());
+    }
+
+    @Test
+    void emptySummaryReturnsZerosDespiteAnotherUsersExpenses() {
+        var date = LocalDate.of(2026, 1, 1);
+        expense(other, null, date, "100");
+        expense(other, null, date.minusDays(1), "100");
+        entityManager.flush();
+        entityManager.clear();
+
+        var result = service.getExpenseAnalysis(date, date);
+
+        assertThat(result.getTotalSpent()).isZero();
+        assertThat(result.getPreviousPeriodTotal()).isZero();
+        assertThat(result.getPercentageChange()).isZero();
+        assertThat(result.getCategories()).isEmpty();
+        assertThat(result.getInsight()).isNull();
     }
 
     private Category category(String name, User user) {

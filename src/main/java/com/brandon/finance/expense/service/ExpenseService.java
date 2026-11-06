@@ -2,7 +2,10 @@ package com.brandon.finance.expense.service;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
+import java.time.DateTimeException;
 import java.time.LocalDate;
+import java.time.temporal.ChronoUnit;
+import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -14,11 +17,14 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.brandon.finance.authentication.service.AuthenticatedUserService;
 import com.brandon.finance.expense.dto.ExpenseAnalysisDTO;
+import com.brandon.finance.expense.dto.ExpenseCategorySummaryDTO;
 import com.brandon.finance.expense.dto.ExpenseDTO;
 import com.brandon.finance.expense.dto.ExpenseFilterRequest;
+import com.brandon.finance.expense.dto.ExpenseInsightDTO;
 import com.brandon.finance.expense.entity.Expense;
 import com.brandon.finance.expense.enums.PeriodType;
 import com.brandon.finance.expense.mapper.ExpenseMapper;
+import com.brandon.finance.expense.repository.CategoryExpenseTotal;
 import com.brandon.finance.expense.repository.ExpenseRepository;
 import com.brandon.finance.expense.specification.ExpenseSpecification;
 import com.brandon.finance.shared.base.enums.ErrorCode;
@@ -140,29 +146,53 @@ public class ExpenseService {
 
     @Transactional(readOnly = true)
     public ExpenseAnalysisDTO getExpenseAnalysis(LocalDate startDate, LocalDate endDate) {
+        if (startDate == null || endDate == null || startDate.isAfter(endDate)) {
+            throw new BusinessException(ErrorCode.VALIDATION_ERROR,
+                "Informe startDate e endDate com startDate anterior ou igual a endDate");
+        }
+        LocalDate previousStartDate;
+        LocalDate previousEndDate;
+        try {
+            long days = ChronoUnit.DAYS.between(startDate, endDate) + 1;
+            previousStartDate = startDate.minusDays(days);
+            previousEndDate = startDate.minusDays(1);
+        } catch (DateTimeException ex) {
+            throw new BusinessException(ErrorCode.VALIDATION_ERROR,
+                "Período fora do intervalo de datas suportado");
+        }
         Long userId = authenticatedUserService.getUserId();
-        List<Expense> expenses = expenseRepository.findByUserIdAndDateBetween(userId, startDate, endDate);
-        List<Expense> previousExpenses = expenseRepository.findByUserIdAndDateBetween(
-            userId,
-            startDate.minusMonths(1),
-            endDate.minusMonths(1)
-        );
-
-        BigDecimal totalSpent = sumAmounts(expenses);
-        BigDecimal previousPeriodTotal = sumAmounts(previousExpenses);
+        List<CategoryExpenseTotal> totals = expenseRepository.summarizeByCategory(userId, startDate, endDate);
+        BigDecimal totalSpent = totals.stream().map(CategoryExpenseTotal::getAmount)
+            .reduce(BigDecimal.ZERO, BigDecimal::add);
+        BigDecimal previousPeriodTotal = expenseRepository.sumByUserAndPeriod(
+            userId, previousStartDate, previousEndDate);
         BigDecimal percentageChange = calculatePercentageChange(totalSpent, previousPeriodTotal);
+        List<ExpenseCategorySummaryDTO> categories = totals.stream()
+            .map(category -> new ExpenseCategorySummaryDTO(category.getCategoryId(),
+                category.getCategoryName() == null ? "Sem categoria" : category.getCategoryName(),
+                category.getAmount(), totalSpent.signum() == 0 ? BigDecimal.ZERO
+                    : category.getAmount().multiply(BigDecimal.valueOf(100))
+                        .divide(totalSpent, 2, RoundingMode.HALF_UP)))
+            .sorted(Comparator.comparing(ExpenseCategorySummaryDTO::amount).reversed()
+                .thenComparing(ExpenseCategorySummaryDTO::categoryName)
+                .thenComparing(ExpenseCategorySummaryDTO::categoryId, Comparator.nullsLast(Long::compareTo)))
+            .toList();
 
         ExpenseAnalysisDTO analysisDTO = new ExpenseAnalysisDTO();
         analysisDTO.setTotalSpent(totalSpent);
         analysisDTO.setPreviousPeriodTotal(previousPeriodTotal);
         analysisDTO.setPercentageChange(percentageChange);
+        analysisDTO.setStartDate(startDate);
+        analysisDTO.setEndDate(endDate);
+        analysisDTO.setPreviousStartDate(previousStartDate);
+        analysisDTO.setPreviousEndDate(previousEndDate);
+        analysisDTO.setCategories(categories);
+        if (totalSpent.signum() > 0 && !categories.isEmpty()) {
+            ExpenseCategorySummaryDTO largest = categories.getFirst();
+            analysisDTO.setInsight(new ExpenseInsightDTO("LARGEST_CATEGORY", largest.categoryId(),
+                largest.categoryName(), largest.amount(), largest.percentage()));
+        }
         return analysisDTO;
-    }
-
-    private BigDecimal sumAmounts(List<Expense> expenses) {
-        return expenses.stream()
-            .map(Expense::getAmount)
-            .reduce(BigDecimal.ZERO, BigDecimal::add);
     }
 
     private BigDecimal calculatePercentageChange(BigDecimal currentTotal, BigDecimal previousTotal) {

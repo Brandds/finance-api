@@ -3,6 +3,7 @@ package com.brandon.finance.expense.controller;
 import java.time.LocalDate;
 import java.util.List;
 
+import org.springdoc.core.annotations.ParameterObject;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.format.annotation.DateTimeFormat;
@@ -21,6 +22,7 @@ import org.springframework.web.bind.annotation.RestController;
 import com.brandon.finance.expense.dto.ExpenseDTO;
 import com.brandon.finance.expense.dto.ExpenseFilterRequest;
 import com.brandon.finance.expense.dto.ExpenseAnalysisDTO;
+import com.brandon.finance.expense.dto.ExpenseSummaryRequest;
 import com.brandon.finance.expense.service.ExpenseService;
 import com.brandon.finance.shared.base.response.ApiResponse;
 import com.brandon.finance.shared.base.response.ResponseUtil;
@@ -116,14 +118,16 @@ public class ExpenseController {
         return ResponseUtil.noContent("Despesa removida com sucesso");
     }
 
-    @GetMapping("/get-expense-analysis")
-        @Operation(
-            summary = "Analisar gastos por período",
-            description = "Calcula o total gasto no período informado, compara com o período anterior equivalente e retorna a variação percentual dos gastos.")
+    @GetMapping({"/get-expense-analysis", "/summary"})
+    @Operation(
+        summary = "Analisar gastos por período",
+        description = "Resumo para Home e Resumo Mensal do usuário autenticado. Datas inclusivas em formato ISO. "
+            + "Retorna total, comparação com o intervalo imediatamente anterior com o mesmo número de dias, "
+            + "categorias com valor/percentual e insight da categoria com maior gasto. "
+            + "Sem base anterior, percentageChange é zero; sem gastos, categories é vazio e insight é nulo.")
     public ResponseEntity<ApiResponse<ExpenseAnalysisDTO>> getExpenseAnalysis(
-            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate startDate,
-            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate endDate) {
-        ExpenseAnalysisDTO analysis = expenseService.getExpenseAnalysis(startDate, endDate);
+            @Valid @ModelAttribute @ParameterObject ExpenseSummaryRequest request) {
+        ExpenseAnalysisDTO analysis = expenseService.getExpenseAnalysis(request.getStartDate(), request.getEndDate());
         return ResponseUtil.ok(analysis, "Análise de despesas realizada com sucesso");
     }
     
