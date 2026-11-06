@@ -23,4 +23,8 @@
     <sqlFile path="db/scripts/email/email_verification_token/create/create_table_email_verification_token.sql" encoding="UTF-8"/>
   </changeSet>  
 
+  <changeSet id="006-add-category-icon" author="brandon">
+    <sqlFile path="db/scripts/category/alter/alter_add_column_icon.sql" encoding="UTF-8"/>
+  </changeSet>
+
 </databaseChangeLog>
