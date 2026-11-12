@@ -168,11 +168,25 @@ class ContractsWebTest {
     }
 
     @Test
+    void bindsRepeatedCategoryIds() throws Exception {
+        authenticate();
+        when(expenseService.filter(any(), any())).thenReturn(Page.empty());
+        mvc.perform(get("/api/v1/expenses/filter").header(HttpHeaders.AUTHORIZATION, "Bearer valid-token")
+                .param("categoryIds", "1", "2"))
+            .andExpect(status().isOk());
+        var filter = ArgumentCaptor.forClass(ExpenseFilterRequest.class);
+        verify(expenseService).filter(filter.capture(), any());
+        assertThat(filter.getValue().getCategoryIds()).containsExactly(1L, 2L);
+    }
+
+    @Test
     void invalidQueryValuesReturnValidationError() throws Exception {
         authenticate();
         for (String[] invalid : List.of(new String[]{"periodType", "UNKNOWN"},
                 new String[]{"startDate", "not-a-date"}, new String[]{"categoryIds", "abc"},
-                new String[]{"categoryIds", "-1"}, new String[]{"minAmount", "-1"})) {
+                new String[]{"categoryIds", "-1"}, new String[]{"categoryIds", "0"},
+                new String[]{"minAmount", "-1"}, new String[]{"maxAmount", "-1"},
+                new String[]{"endDate", "2026-02-30"}, new String[]{"maxAmount", "abc"})) {
             mvc.perform(get("/api/v1/expenses/filter").header(HttpHeaders.AUTHORIZATION, "Bearer valid-token")
                     .param(invalid[0], invalid[1]))
                 .andExpect(status().isBadRequest()).andExpect(jsonPath("$.errorCode").value("VALIDATION_ERROR"));

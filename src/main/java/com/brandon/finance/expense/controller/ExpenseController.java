@@ -71,7 +71,7 @@ public class ExpenseController {
         description = "Combina categorias (IDs separados por vírgula), período, valores e paginação. "
             + "Períodos predefinidos substituem as datas informadas; CUSTOM exige ambas as datas.")
     public ResponseEntity<ApiResponse<Page<ExpenseDTO>>> filter(
-            @Valid @ModelAttribute ExpenseFilterRequest filter, Pageable pageable) {
+            @Valid @ModelAttribute @ParameterObject ExpenseFilterRequest filter, @ParameterObject Pageable pageable) {
         return ResponseUtil.ok(expenseService.filter(filter, pageable), "Despesas filtradas com sucesso");
     }
 
