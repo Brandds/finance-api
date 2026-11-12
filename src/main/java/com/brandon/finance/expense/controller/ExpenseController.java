@@ -38,12 +38,18 @@ import com.brandon.finance.shared.constants.ApiPaths;
 @RequestMapping(ApiPaths.EXPENSES)
 @RequiredArgsConstructor
 @Tag(name = "Expenses", description = "Operações relacionadas a despesas")
+@io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "400", description = "Entrada inválida: errorCode VALIDATION_ERROR e mensagem de validação",
+    content = @io.swagger.v3.oas.annotations.media.Content(schema = @io.swagger.v3.oas.annotations.media.Schema(
+        implementation = com.brandon.finance.shared.base.excepetion.record.ApiError.class)))
+@io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "404", description = "Recurso não encontrado para o usuário autenticado",
+    content = @io.swagger.v3.oas.annotations.media.Content(schema = @io.swagger.v3.oas.annotations.media.Schema(
+        implementation = com.brandon.finance.shared.base.excepetion.record.ApiError.class)))
 public class ExpenseController {
 
     private final ExpenseService expenseService;
 
     @PostMapping
-    @Operation(summary = "Criar despesa", description = "Cria uma nova despesa")
+    @Operation(summary = "Criar despesa", description = "Descrição obrigatória após trim, até 255 caracteres; valor positivo com até duas casas decimais; data ISO válida obrigatória. Proprietário definido pela autenticação.")
     public ResponseEntity<ApiResponse<ExpenseDTO>> create(@Valid @RequestBody ExpenseDTO dto) {
         ExpenseDTO created = expenseService.create(dto);
         return ResponseUtil.created(created, "Despesa criada com sucesso");
@@ -68,7 +74,7 @@ public class ExpenseController {
 
     @GetMapping("/filter")
     @Operation(summary = "Filtrar despesas do usuário autenticado",
-        description = "Combina categorias (IDs separados por vírgula), período, valores e paginação. "
+        description = "Combina description (trecho literal sem caixa/acentos, vazio ignorado), categorias (IDs separados por vírgula), período, valores, ordenação e paginação. Limites inclusivos; filtro aplicado antes da paginação. "
             + "Períodos predefinidos substituem as datas informadas; CUSTOM exige ambas as datas.")
     public ResponseEntity<ApiResponse<Page<ExpenseDTO>>> filter(
             @Valid @ModelAttribute @ParameterObject ExpenseFilterRequest filter, @ParameterObject Pageable pageable) {
@@ -100,7 +106,7 @@ public class ExpenseController {
     }
 
     @PutMapping("/{id:\\d+}")
-    @Operation(summary = "Atualizar despesa", description = "Atualiza uma despesa existente")
+    @Operation(summary = "Atualizar despesa", description = "Atualiza descrição, valor, data, categoria e conta. Mesmas validações da criação. categoryId/accountId null ou ausentes removem os vínculos; vínculos devem pertencer ao usuário autenticado. id/userId enviados não alteram identidade ou proprietário.")
     public ResponseEntity<ApiResponse<ExpenseDTO>> update(
             @PathVariable Long id,
             @Valid @RequestBody ExpenseDTO dto) {

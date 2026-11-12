@@ -33,10 +33,70 @@ import com.brandon.finance.shared.base.excepetion.BusinessException;
 
 @ExtendWith(MockitoExtension.class)
 class ExpenseServiceTest {
+    @Mock com.brandon.finance.category.repository.CategoryRepository categories;
+    @Mock com.brandon.finance.account.repository.AccountRepository accounts;
     @Mock ExpenseRepository repository;
     @Mock ExpenseMapper mapper;
     @Mock AuthenticatedUserService authenticatedUserService;
     @InjectMocks ExpenseService service;
+
+    @Test
+    void updatesAllFieldsAndPreservesOwnerThenRemovesOptionalLinks() {
+        var owner = new com.brandon.finance.user.entity.User(42L);
+        var expense = new Expense();
+        expense.setUser(owner);
+        var category = new com.brandon.finance.category.entity.Category(2L);
+        var account = new com.brandon.finance.account.entity.Account(3L);
+        when(authenticatedUserService.getUserId()).thenReturn(42L);
+        when(repository.findByIdAndUserId(1L, 42L)).thenReturn(java.util.Optional.of(expense));
+        when(categories.findByIdAndUserId(2L, 42L)).thenReturn(java.util.Optional.of(category));
+        when(accounts.findByIdAndUserId(3L, 42L)).thenReturn(java.util.Optional.of(account));
+        when(repository.save(expense)).thenReturn(expense);
+        when(mapper.toDTO(expense)).thenAnswer(invocation -> new ExpenseMapper().toDTO(expense));
+        var dto = new ExpenseDTO(999L, "Café", new BigDecimal("12.34"), LocalDate.of(2026, 3, 15), 999L, 2L, 3L, null);
+
+        var result = service.update(1L, dto);
+
+        assertThat(result.getDescription()).isEqualTo("Café");
+        assertThat(result.getAmount()).isEqualByComparingTo("12.34");
+        assertThat(result.getDate()).isEqualTo(dto.getDate());
+        assertThat(result.getCategoryId()).isEqualTo(2L);
+        assertThat(result.getAccountId()).isEqualTo(3L);
+        assertThat(expense.getUser()).isSameAs(owner);
+        dto.setCategoryId(null);
+        dto.setAccountId(null);
+        service.update(1L, dto);
+        assertThat(expense.getCategory()).isNull();
+        assertThat(expense.getAccount()).isNull();
+    }
+
+    @org.junit.jupiter.params.ParameterizedTest
+    @org.junit.jupiter.params.provider.ValueSource(booleans = {true, false})
+    void rejectsForeignLinksBeforeMutatingExpense(boolean foreignCategory) {
+        var expense = new Expense();
+        expense.setDescription("Original");
+        when(authenticatedUserService.getUserId()).thenReturn(42L);
+        when(repository.findByIdAndUserId(1L, 42L)).thenReturn(java.util.Optional.of(expense));
+        var dto = new ExpenseDTO();
+        dto.setDescription("Alterada");
+        if (foreignCategory) dto.setCategoryId(99L); else dto.setAccountId(99L);
+        assertThatThrownBy(() -> service.update(1L, dto))
+            .isInstanceOf(com.brandon.finance.shared.base.excepetion.ResourceNotFoundException.class);
+        assertThat(expense.getDescription()).isEqualTo("Original");
+        org.mockito.Mockito.verify(repository, org.mockito.Mockito.never()).save(org.mockito.ArgumentMatchers.any());
+    }
+
+    @Test
+    void foreignExpenseCannotBeReadUpdatedOrDeleted() {
+        when(authenticatedUserService.getUserId()).thenReturn(42L);
+        for (Runnable operation : List.<Runnable>of(() -> service.getById(99L),
+                () -> service.update(99L, new ExpenseDTO()), () -> service.delete(99L))) {
+            assertThatThrownBy(operation::run)
+                .isInstanceOf(com.brandon.finance.shared.base.excepetion.ResourceNotFoundException.class);
+        }
+        org.mockito.Mockito.verify(repository, org.mockito.Mockito.never()).save(org.mockito.ArgumentMatchers.any());
+        org.mockito.Mockito.verify(repository, org.mockito.Mockito.never()).delete(org.mockito.ArgumentMatchers.any(Expense.class));
+    }
 
     @Test
     void mapsPageWithoutLosingPaginationOrSorting() {

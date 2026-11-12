@@ -52,6 +52,8 @@ import com.brandon.finance.user.enums.Role;
 @ContextConfiguration(classes = ExpenseFilterRepositoryTest.JpaConfig.class)
 @Import({ExpenseService.class, ExpenseMapper.class})
 class ExpenseFilterRepositoryTest {
+    @MockitoBean com.brandon.finance.category.repository.CategoryRepository categories;
+    @MockitoBean com.brandon.finance.account.repository.AccountRepository accounts;
     @Configuration
     @EntityScan("com.brandon.finance")
     @EnableJpaRepositories(basePackageClasses = ExpenseRepository.class)
@@ -65,6 +67,68 @@ class ExpenseFilterRepositoryTest {
     private User other;
     private Category food;
     private Category transport;
+
+    @Test
+    void searchesLiteralAccentedDescriptionsBeforePaginationWithOtherFilters() {
+        var date = LocalDate.of(2026, 3, 15);
+        expense(owner, food, date, "10");
+        var match = expense(owner, food, date, "20");
+        match.setDescription("CAFÉ 50%_! almoço");
+        var decomposed = expense(owner, food, date, "30");
+        decomposed.setDescription("cafe\u0301 50%_! almoço");
+        expense(other, food, date, "20").setDescription(match.getDescription());
+        expense(owner, transport, date, "20").setDescription(match.getDescription());
+        expense(owner, food, date, "20").setDescription("cafe 50abc!");
+        var filter = new ExpenseFilterRequest();
+        filter.setDescription("  café 50%_!  ");
+        filter.setCategoryIds(List.of(food.getId()));
+        filter.setStartDate(date);
+        filter.setEndDate(date);
+        filter.setMinAmount(new BigDecimal("20"));
+        filter.setMaxAmount(new BigDecimal("30"));
+        entityManager.flush();
+        entityManager.clear();
+        var first = service.filter(filter, PageRequest.of(0, 1, Sort.by("amount")));
+        var second = service.filter(filter, PageRequest.of(1, 1, Sort.by("amount")));
+        assertThat(first.getTotalElements()).isEqualTo(2);
+        assertThat(first.getTotalPages()).isEqualTo(2);
+        assertThat(first.getContent()).extracting(dto -> dto.getId()).containsExactly(match.getId());
+        assertThat(second.getContent()).extracting(dto -> dto.getId()).containsExactly(decomposed.getId());
+        filter.setDescription("   ");
+        assertThat(service.filter(filter, PageRequest.of(0, 20)).getTotalElements()).isEqualTo(3);
+    }
+
+    @Test
+    void subsequentQueriesAndTotalsReflectUpdateAndDeletion() {
+        var oldDate = LocalDate.of(2026, 1, 31);
+        var newDate = LocalDate.of(2026, 2, 1);
+        var expense = expense(owner, food, oldDate, "10");
+        entityManager.flush();
+        Long id = expense.getId();
+        var dto = new com.brandon.finance.expense.dto.ExpenseDTO(id, "Atualizada", new BigDecimal("25.50"), newDate,
+            other.getId(), null, null, null);
+        service.update(id, dto);
+        entityManager.flush();
+        entityManager.clear();
+        var loaded = service.getById(id);
+        assertThat(loaded.getDescription()).isEqualTo("Atualizada");
+        assertThat(loaded.getDate()).isEqualTo(newDate);
+        assertThat(loaded.getUserId()).isEqualTo(owner.getId());
+        assertThat(loaded.getCategoryId()).isNull();
+        assertThat(service.getExpenseAnalysis(oldDate, oldDate).getTotalSpent()).isZero();
+        assertThat(service.getExpenseAnalysis(newDate, newDate).getTotalSpent()).isEqualByComparingTo("25.50");
+        var filter = new ExpenseFilterRequest();
+        filter.setStartDate(newDate);
+        filter.setEndDate(newDate);
+        assertThat(service.filter(filter, PageRequest.of(0, 20)).getTotalElements()).isEqualTo(1);
+        service.delete(id);
+        entityManager.flush();
+        entityManager.clear();
+        org.assertj.core.api.Assertions.assertThatThrownBy(() -> service.getById(id))
+            .isInstanceOf(com.brandon.finance.shared.base.excepetion.ResourceNotFoundException.class);
+        assertThat(service.getExpenseAnalysis(newDate, newDate).getTotalSpent()).isZero();
+        assertThat(service.filter(filter, PageRequest.of(0, 20))).isEmpty();
+    }
 
     @BeforeEach
     void setUp() {

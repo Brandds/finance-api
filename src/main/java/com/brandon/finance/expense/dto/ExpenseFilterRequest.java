@@ -17,6 +17,8 @@ import lombok.Setter;
 @Getter
 @Setter
 public class ExpenseFilterRequest {
+    @io.swagger.v3.oas.annotations.media.Schema(description = "Trecho literal, sem distinção de caixa/acentos; espaços externos removidos; vazio não restringe")
+    private String description;
     @Schema(description = "IDs positivos, separados por vírgula (categoryIds=1,2) ou repetidos "
         + "(categoryIds=1&categoryIds=2). Seleciona qualquer uma das categorias.")
     private List<@Positive Long> categoryIds;

@@ -146,6 +146,7 @@ class ContractsWebTest {
         authenticate();
         when(expenseService.filter(any(), any())).thenReturn(Page.empty());
         mvc.perform(get("/api/v1/expenses/filter").header(HttpHeaders.AUTHORIZATION, "Bearer valid-token")
+                .param("description", "  café 50%_  ")
                 .param("categoryIds", "1,2").param("periodType", "CUSTOM")
                 .param("startDate", "2026-01-01").param("endDate", "2026-01-31")
                 .param("minAmount", "10.50").param("maxAmount", "50.00")
@@ -155,6 +156,7 @@ class ContractsWebTest {
         var filter = ArgumentCaptor.forClass(ExpenseFilterRequest.class);
         var pageable = ArgumentCaptor.forClass(Pageable.class);
         verify(expenseService).filter(filter.capture(), pageable.capture());
+        assertThat(filter.getValue().getDescription()).isEqualTo("  café 50%_  ");
         assertThat(filter.getValue().getCategoryIds()).isEqualTo(List.of(1L, 2L));
         assertThat(filter.getValue().getPeriodType()).isEqualTo(PeriodType.CUSTOM);
         assertThat(filter.getValue().getStartDate()).isEqualTo(LocalDate.of(2026, 1, 1));
