@@ -33,6 +33,12 @@ public class GlobalExceptionHandler {
         return buildError(HttpStatus.BAD_REQUEST, ex, request);
     }
 
+    @ExceptionHandler(org.springframework.http.converter.HttpMessageNotReadableException.class)
+    public ResponseEntity<ApiError> handleUnreadableBody(HttpServletRequest request) {
+        return buildError(HttpStatus.BAD_REQUEST, ErrorCode.VALIDATION_ERROR.name(),
+            "Corpo inválido: verifique os tipos dos campos e a data no formato yyyy-MM-dd", request);
+    }
+
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ApiError> handleGeneric(Exception ex, HttpServletRequest request) {
 

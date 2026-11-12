@@ -77,7 +77,7 @@ public class ExpenseService {
 
         return expenseRepository.findAll(ExpenseSpecification.filter(
                 authenticatedUserService.getUserId(), filter.getCategoryIds(), startDate, endDate,
-                filter.getMinAmount(), filter.getMaxAmount()), pageable)
+                filter.getMinAmount(), filter.getMaxAmount(), filter.getDescription()), pageable)
             .map(expenseMapper::toDTO);
     }
 
@@ -139,15 +139,20 @@ public class ExpenseService {
 
     @Transactional
     public ExpenseDTO update(Long id, ExpenseDTO dto) {
-        return expenseRepository.findByIdAndUserId(id, authenticatedUserService.getUserId())
-            .map(expense -> {
-                expense.setDescription(dto.getDescription());
-                expense.setAmount(dto.getAmount());
-                expense.setDate(dto.getDate());
-                Expense updated = expenseRepository.save(expense);
-                return expenseMapper.toDTO(updated);
-            })
-            .orElseThrow(() -> new ResourceNotFoundException("Despesa não encontrada"));
+        Expense expense = getOwnedExpense(id);
+        Long userId = authenticatedUserService.getUserId();
+        var category = dto.getCategoryId() == null ? null
+            : categoryRepository.findByIdAndUserId(dto.getCategoryId(), userId)
+                .orElseThrow(() -> new ResourceNotFoundException("Categoria não encontrada"));
+        var account = dto.getAccountId() == null ? null
+            : accountRepository.findByIdAndUserId(dto.getAccountId(), userId)
+                .orElseThrow(() -> new ResourceNotFoundException("Conta não encontrada"));
+        expense.setDescription(dto.getDescription());
+        expense.setAmount(dto.getAmount());
+        expense.setDate(dto.getDate());
+        expense.setCategory(category);
+        expense.setAccount(account);
+        return expenseMapper.toDTO(expenseRepository.save(expense));
     }
 
     @Transactional

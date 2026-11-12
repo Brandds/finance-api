@@ -16,6 +16,8 @@ import lombok.Setter;
 @Getter
 @Setter
 public class ExpenseFilterRequest {
+    @io.swagger.v3.oas.annotations.media.Schema(description = "Trecho literal, sem distinção de caixa/acentos; espaços externos removidos; vazio não restringe")
+    private String description;
     private List<@Positive Long> categoryIds;
     private PeriodType periodType;
 
