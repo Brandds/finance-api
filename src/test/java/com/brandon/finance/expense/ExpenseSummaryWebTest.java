@@ -43,6 +43,8 @@ import com.brandon.finance.user.repository.UserRepository;
     SecurityConfig.class, JwtFilter.class, GlobalExceptionHandler.class,
     CustomAccessDeniedHandler.class, CustomAuthenticationEntryPoint.class})
 class ExpenseSummaryWebTest {
+    @MockitoBean com.brandon.finance.category.repository.CategoryRepository categories;
+    @MockitoBean com.brandon.finance.account.repository.AccountRepository accounts;
     @Autowired MockMvc mvc;
     @MockitoBean ExpenseRepository repository;
     @MockitoBean ExpenseMapper mapper;
