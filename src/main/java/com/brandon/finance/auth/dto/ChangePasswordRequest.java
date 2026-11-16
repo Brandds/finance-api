@@ -8,4 +8,9 @@ public record ChangePasswordRequest(
     @NotBlank(message = "Nova senha obrigatória")
     @Size(min = 8, max = 72, message = "A nova senha deve ter entre 8 e 72 caracteres") String newPassword,
     @NotBlank(message = "Confirmação de senha obrigatória") String confirmPassword
-) {}
+) {
+    @Override
+    public String toString() {
+        return "ChangePasswordRequest[REDACTED]";
+    }
+}
