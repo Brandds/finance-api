@@ -30,6 +30,22 @@ public class EmailServiceImpl  implements EmailService {
     private final EmailTemplateServiceImpl templateService;
 
     @Override
+    public void sendPasswordResetEmail(User user, String token) {
+        String html = templateService.processTemplate("email/password-reset-email",
+            Map.of("name", user.getName(), "token", token));
+        MimeMessage message = mailSender.createMimeMessage();
+        try {
+            MimeMessageHelper helper = new MimeMessageHelper(message, true, StandardCharsets.UTF_8.name());
+            helper.setTo(user.getEmail());
+            helper.setSubject("Recuperação de senha");
+            helper.setText(html, true);
+            mailSender.send(message);
+        } catch (MessagingException | MailException ex) {
+            log.warn("Não foi possível enviar o e-mail de recuperação de senha.");
+        }
+    }
+
+    @Override
     public void sendVerificationEmail(User user, String token) {
 
         String url = apiUrl + verificationEmail +   token;
