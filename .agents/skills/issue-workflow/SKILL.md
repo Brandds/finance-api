@@ -1,43 +1,113 @@
 ---
 name: issue-workflow
-description: Gerenciar a implementação de Issues neste repositório, da análise à validação final, preservando o contexto local, os contratos existentes e as autorizações do usuário.
+description: Gerenciar a implementação de Issues neste repositório, da análise e planejamento à validação final, preservando alterações locais, o AGENTS.md e os limites de autorização.
+metadata:
+  short-description: Padronizar o ciclo de implementação de Issues
 ---
 
-# Issue Workflow
+# Workflow de Issues
 
-Use esta Skill quando o usuário pedir para implementar, corrigir ou validar uma Issue deste repositório. Ela pode ser invocada automaticamente ou explicitamente como `$issue-workflow`.
+Use quando o usuário pedir para implementar, corrigir ou concluir uma Issue deste repositório. Também pode ser invocada explicitamente com `$issue-workflow`.
 
-## Regras de escopo e segurança
+## Limites e contexto
 
-- Leia o `AGENTS.md` aplicável antes de alterar qualquer arquivo e siga as Skills de domínio disponíveis.
-- Consulte a Issue pelo provedor configurado somente quando houver conexão e autorização. Se o acesso não existir ou falhar, peça a descrição, o número, o título e os critérios de aceite; não invente requisitos.
-- Antes de trabalhar, inspecione o estado do repositório e as alterações locais com comandos somente de leitura. Preserve alterações existentes e não as misture à Issue sem confirmação.
-- Não execute `reset`, `clean`, force push ou qualquer descarte de alterações. Não execute commit, push, merge ou rebase sem autorização explícita.
-- Não instale dependências sem autorização. Não modifique `AGENTS.md` nem arquivos fora do escopo identificado.
+- Leia o `AGENTS.md` aplicável antes de agir e siga suas regras como autoridade local.
+- Consulte a Issue pelo provedor configurado somente quando houver integração e acesso autorizado. Não invente número, título, critérios de aceite ou conteúdo.
+- Se não houver acesso à Issue, peça ao usuário sua descrição, número, critérios de aceite e contexto suficiente para continuar.
+- Preserve alterações locais existentes. Comece por `git status --short` e investigue apenas os arquivos relevantes.
+- Não instale dependências, não altere o `AGENTS.md` e não crie arquivos fora do escopo da Issue.
+- Não execute `git reset`, `git clean`, `git checkout` para descartar trabalho, `git push --force` ou qualquer ação destrutiva.
 
-## Fluxo
+## 1. Analisar a Issue
 
-1. **Analisar.** Registre número, título, critérios de aceite, origem dos requisitos, estado Git, branch atual e arquivos/funcionalidades potencialmente afetados. Leia apenas os arquivos relevantes; use buscas direcionadas e reutilize descobertas.
-2. **Planejar.** Classifique a complexidade como baixa, média ou alta e o risco como baixo, médio ou alto. Para mudanças médias/altas, apresente um plano curto com impactos, dependências, validações e alternativa mínima. Pare e solicite aprovação antes de ações de alto risco, fora do escopo ou com mudança de contrato, banco, segurança ou comportamento público.
-3. **Preparar o Git.** Identifique a branch base pela configuração e pelo histórico do repositório; nunca presuma `main` ou `develop`. Se a implementação foi autorizada, crie uma branch exclusiva no padrão `feat/<numero>-<descricao>`, `fix/<numero>-<descricao>` ou `refactor/<numero>-<descricao>`, usando slug curto e seguro. Se não houver autorização para criar branch, permaneça na branch atual e informe isso.
-4. **Implementar.** Faça alterações incrementais e mínimas, respeitando a arquitetura, os contratos e os padrões existentes. Reutilize componentes, serviços, mappers e utilitários antes de criar abstrações. Separe regras de negócio, acesso a dados, apresentação e testes conforme a organização do projeto.
-5. **Selecionar Skills.** Use apenas Skills relevantes: `frontend-debugging` para bugs reproduzíveis; `frontend-implementation` para alterações de frontend; `form-validation` para formulários ou schemas; `frontend-testing` para testes de frontend. Para outros domínios, use a Skill disponível correspondente ou siga o `AGENTS.md`; não carregue Skills desnecessárias.
-6. **Validar.** Execute primeiro as verificações mais próximas da alteração. Confira TypeScript quando aplicável, testes, lint/build existentes, critérios de aceite e regressões plausíveis. Informe comandos não executados e o motivo. Não trate uma validação impossível como sucesso.
+Registre:
 
-## Branch e autorização
+- número, título e descrição;
+- critérios de aceite e casos-limite;
+- tipo provável: bug, feature, refatoração ou manutenção;
+- funcionalidades, rotas, componentes, hooks, serviços, schemas, tipos e documentação diretamente afetados;
+- riscos, dependências e alterações locais que não pertencem à Issue.
 
-Criar uma branch é uma mudança de estado: confirme que a ação está autorizada no pedido atual. Antes de criá-la, verifique se o nome já existe e se a branch base está limpa o suficiente para a operação; nunca force a troca ou descarte arquivos. Se a base correta não puder ser determinada, solicite orientação.
+Use `rg` e leitura direcionada; não faça varredura completa do repositório sem necessidade. Reaproveite descobertas já obtidas durante a execução.
 
-## Entrega
+### Dependências e implementações existentes
 
-Finalize com um resumo objetivo contendo:
+- Identifique se a Issue depende de alterações em outros repositórios.
+  Caso exista dependência, registre os contratos necessários e informe
+  o usuário. Não altere outro repositório automaticamente.
 
-- Issue (número, título e origem) e branch/base usadas;
-- arquivos alterados e o propósito de cada grupo;
-- resumo da implementação;
-- testes/verificações executados e não executados;
-- riscos, pendências e autorizações ainda necessárias;
-- sugestão de mensagem de commit, sem criar o commit;
-- status de cada critério de aceite: atendido, não atendido ou não verificável, com evidência curta.
+- Verifique se a funcionalidade já existe total ou parcialmente na
+  branch base ou em Pull Requests relacionados. Não duplique
+  implementações existentes.
 
-Em uma Issue real, aplique o fluxo acima somente até o limite autorizado pelo usuário. Para uma análise sem pedido de implementação, não crie branch nem altere arquivos; entregue diagnóstico, plano e validações propostas.
+- Caso encontre sobreposição com outras Issues, registre o conflito
+  e proponha uma solução antes de implementar.
+
+## 2. Planejar
+
+Classifique a complexidade e o risco como baixo, médio ou alto, considerando impacto em API, autenticação, persistência, navegação, múltiplas features e migrações.
+
+- Para baixo risco, prossiga com um plano curto e verificável.
+- Para médio risco, apresente arquivos, sequência de mudanças e validações antes de editar quando isso melhorar a segurança.
+- Para alto risco, mudança fora do escopo, contrato público ou impacto irreversível, pare e solicite aprovação explícita antes de implementar.
+- Priorize a menor alteração compatível com os critérios de aceite; não inclua refatorações oportunistas.
+- Quando a Issue exigir alterações em outro repositório,
+  separe as responsabilidades por projeto e identifique
+  a ordem de implementação.
+
+- Não considere a Issue concluída apenas porque o código
+  local foi implementado, caso existam critérios de aceite
+  dependentes de integrações ainda não validadas.
+
+- Se uma dependência externa bloquear um critério de aceite,
+  registre o status como parcial ou bloqueado e informe
+  o usuário antes de finalizar.
+
+## 3. Preparar o Git
+
+Antes de editar:
+
+1. Verifique branch atual, estado do repositório e alterações locais.
+2. Identifique a branch base correta a partir do contexto do repositório, documentação ou provedor; nunca presuma `main` ou `develop`.
+3. Se a execução for de implementação e a criação de branch estiver autorizada pelo pedido, crie uma branch exclusiva com o formato `feat/<numero>-<descricao>`, `fix/<numero>-<descricao>` ou `refactor/<numero>-<descricao>`.
+4. Normalize `<descricao>` em slug curto, minúsculo, sem espaços ou caracteres ambíguos.
+
+Não crie branch durante uma análise, planejamento ou revisão que não peça implementação. Não faça commit, push, merge ou rebase sem autorização explícita.
+
+## 4. Implementar
+
+Selecione somente as Skills necessárias:
+
+- `frontend-debugging` para investigar bugs e causas-raiz;
+- `frontend-implementation` para alterações em telas, componentes, hooks, serviços, navegação ou integrações;
+- `form-validation` para formulários, React Hook Form, schemas Zod e submissões;
+- `frontend-testing` para testes e proteção contra regressões.
+
+Respeite a arquitetura por feature, os componentes e tokens existentes, o alias `@/`, `src/services/api.ts`, as rotas tipadas e as stores já adotadas. Preserve estados de loading, erro, vazio, sucesso, sessão expirada, permissões e temas quando aplicável. Não duplique autenticação nem mova lógica sem necessidade.
+
+## 5. Validar
+
+Depois de implementar:
+
+- execute as verificações existentes e a checagem TypeScript compatível;
+- verifique cada critério de aceite e pelo menos um caminho adjacente com risco de regressão;
+- para mudanças de UI, navegação, teclado ou responsividade, faça validação visual quando possível;
+- para API/autenticação, verifique sucesso, erro, sessão expirada, payload, resposta e persistência;
+- não instale dependências sem autorização;
+- informe claramente testes não executados, falhas preexistentes e limitações de ambiente.
+
+## 6. Finalizar
+
+Entregue um resumo objetivo contendo:
+
+- Issue, título e branch;
+- arquivos alterados e comportamento implementado;
+- verificações e testes executados, com resultados;
+- critérios de aceite atendidos, parciais ou não verificados;
+- riscos, pendências e limitações;
+- sugestão de mensagem de commit, sem executar o commit;
+- status final da Issue, sem fechá-la ou alterar o provedor sem autorização.
+- Dependências externas: contratos necessários, funcionalidades
+  pendentes em outros repositórios e compatibilidade com
+  consumidores existentes.
+
