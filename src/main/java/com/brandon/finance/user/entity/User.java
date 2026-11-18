@@ -2,6 +2,8 @@ package com.brandon.finance.user.entity;
 
 import java.util.List;
 
+import org.hibernate.annotations.DynamicUpdate;
+
 import com.brandon.finance.category.entity.Category;
 import com.brandon.finance.expense.entity.Expense;
 import com.brandon.finance.shared.base.entity.AuditableEntity;
@@ -20,6 +22,7 @@ import lombok.Setter;
 @NoArgsConstructor
 @Getter
 @Entity
+@DynamicUpdate
 @Setter
 @Table(name = "users")
 public class User extends AuditableEntity {
@@ -45,6 +48,9 @@ public class User extends AuditableEntity {
 
     @Column(nullable = true, length = 1024)
     private String googlePictureUrl;
+
+    @Column(name = "avatar_public_id", length = 255)
+    private String avatarPublicId;
 
     @OneToMany(mappedBy = "user")
     private List<Expense> expenses;

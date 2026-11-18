@@ -20,6 +20,8 @@ import com.brandon.finance.user.request.CreateUserRequest;
 import com.brandon.finance.user.response.UserEditResponse;
 import com.brandon.finance.user.response.UserResponse;
 
+import com.brandon.finance.shared.storage.StorageService;
+
 import lombok.RequiredArgsConstructor;
 
 @RequiredArgsConstructor
@@ -32,6 +34,7 @@ public class UserService {
     private final EmailServiceImpl emailService;
     private final EmailVerificationTokenServiceImpl emailVerificationTokenService;
     private final AuthenticatedUserService authenticatedUserService;
+    private final StorageService avatarStorage;
 
     @Transactional
     public UserResponse create(CreateUserRequest request) {
@@ -72,7 +75,9 @@ public class UserService {
 
     @Transactional(readOnly = true)
     public UserResponse getCurrentUser() {
-        return getUserById(authenticatedUserService.getUserId());
+        var user = getOwnedUser(authenticatedUserService.getUserId());
+        String avatarUrl = user.getAvatarPublicId() == null ? null : avatarStorage.readUrl(user.getAvatarPublicId());
+        return userMapper.toProfileResponse(user, avatarUrl);
     }
 
     private User getOwnedUser(Long id) {

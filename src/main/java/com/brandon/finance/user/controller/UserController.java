@@ -2,20 +2,26 @@ package com.brandon.finance.user.controller;
 
 import java.util.List;
 
+import org.springframework.http.CacheControl;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.multipart.MultipartFile;
 
 import com.brandon.finance.shared.base.response.ApiResponse;
 import com.brandon.finance.shared.base.response.ResponseUtil;
 import com.brandon.finance.user.request.CreateUserRequest;
 import com.brandon.finance.user.response.UserEditResponse;
 import com.brandon.finance.user.response.UserResponse;
+import com.brandon.finance.user.service.UserAvatarService;
 import com.brandon.finance.user.service.UserService;
 
 import io.swagger.v3.oas.annotations.Operation;
@@ -35,6 +41,7 @@ import com.brandon.finance.shared.constants.ApiPaths;
 public class UserController {
     
     private final UserService userService;
+    private final UserAvatarService userAvatarService;
 
     @PostMapping("/register")
     @Operation(summary = "Criar novo usuário", description = "Registra um novo usuário no sistema")
@@ -104,7 +111,8 @@ public class UserController {
     })
     public ResponseEntity<ApiResponse<UserResponse>> getCurrentUser() {
         UserResponse response = userService.getCurrentUser();
-        return ResponseUtil.ok(response, "Dados do usuário retornados com sucesso");
+        var result = ResponseUtil.ok(response, "Dados do usuário retornados com sucesso");
+        return ResponseEntity.ok().cacheControl(CacheControl.noStore()).body(result.getBody());
     }  
     
     @PutMapping("/me")
@@ -121,4 +129,32 @@ public class UserController {
         return ResponseUtil.ok(response, "Usuario atualizado com sucesso");
     }
 
+    @PutMapping(value = "/me/avatar", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    @Operation(summary = "Atualizar avatar do usuário autenticado",
+        description = "Envia JPEG, PNG ou WebP na parte image. Consulte GET /me para obter a URL de leitura.")
+    @ApiResponses({
+        @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "Avatar atualizado"),
+        @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "400", description = "Imagem ausente ou inválida"),
+        @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "401", description = "Usuário não autenticado"),
+        @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "413", description = "Limite de upload excedido"),
+        @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "415", description = "Requisição fora do formato multipart"),
+        @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "503", description = "Armazenamento indisponível")
+    })
+    public ResponseEntity<ApiResponse<Void>> uploadAvatar(@RequestPart("image") MultipartFile image) {
+        userAvatarService.upload(image);
+        return ResponseUtil.ok(null, "Avatar atualizado com sucesso");
+    }
+
+    @DeleteMapping("/me/avatar")
+    @Operation(summary = "Remover avatar do usuário autenticado",
+        description = "Remove o avatar personalizado. A foto Google volta a ser usada quando disponível.")
+    @ApiResponses({
+        @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "Avatar removido do perfil"),
+        @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "401", description = "Usuário não autenticado"),
+        @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "503", description = "Falha na limpeza do objeto no armazenamento")
+    })
+    public ResponseEntity<ApiResponse<Void>> deleteAvatar() {
+        userAvatarService.delete();
+        return ResponseUtil.ok(null, "Avatar removido do perfil");
+    }
 }

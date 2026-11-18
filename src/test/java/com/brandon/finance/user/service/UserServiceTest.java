@@ -25,6 +25,7 @@ import com.brandon.finance.authentication.service.AuthenticatedUserService;
 import com.brandon.finance.email.service.impl.EmailServiceImpl;
 import com.brandon.finance.email.service.impl.EmailVerificationTokenServiceImpl;
 import com.brandon.finance.shared.base.excepetion.ResourceNotFoundException;
+import com.brandon.finance.shared.storage.StorageService;
 import com.brandon.finance.user.entity.User;
 import com.brandon.finance.user.enums.Role;
 import com.brandon.finance.user.mapper.UserMapper;
@@ -40,7 +41,22 @@ class UserServiceTest {
     @Mock EmailServiceImpl emailService;
     @Mock EmailVerificationTokenServiceImpl emailVerificationTokenService;
     @Mock AuthenticatedUserService authenticatedUserService;
+    @Mock StorageService avatarStorage;
     @InjectMocks UserService service;
+    @Test
+    void currentProfilePrefersPublicAvatarAndFallsBackToGoogleAfterRemoval() {
+        var user = user();
+        user.updateFromGoogleInfo("Owner", "https://example.test/google.png");
+        user.setAvatarPublicId("avatars/42/profile");
+        when(authenticatedUserService.getUserId()).thenReturn(42L);
+        when(repository.findById(42L)).thenReturn(Optional.of(user));
+        when(avatarStorage.readUrl(user.getAvatarPublicId())).thenReturn("https://res.cloudinary.com/demo/image/upload/v1/avatars/42/profile");
+
+        assertThat(service.getCurrentUser().displayPicture()).isEqualTo("https://res.cloudinary.com/demo/image/upload/v1/avatars/42/profile");
+        user.setAvatarPublicId(null);
+        assertThat(service.getCurrentUser().displayPicture()).isEqualTo("https://example.test/google.png");
+    }
+
 
     @Test
     void registersLocalUserDisabledAndSendsVerificationForSavedUser() {
