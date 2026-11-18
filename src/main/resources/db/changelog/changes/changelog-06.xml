@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+ xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+ xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.0.xsd">
+ <changeSet id="010-add-user-avatar-public-id" author="brandon">
+  <addColumn tableName="users">
+   <column name="avatar_public_id" type="VARCHAR(255)"/>
+  </addColumn>
+  <rollback><dropColumn tableName="users" columnName="avatar_public_id"/></rollback>
+ </changeSet>
+</databaseChangeLog>

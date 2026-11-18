@@ -32,6 +32,12 @@ public class UserMapper {
         );
     }
 
+    public UserResponse toProfileResponse(User user, String avatarUrl) {
+        String picture = avatarUrl != null ? avatarUrl : user.getGooglePictureUrl();
+        return new UserResponse(user.getId(), user.getName(), user.getEmail(), user.getRole(),
+            null, picture, user.getCpf());
+    }
+
     public UserResponse toResponseEdit(User user, UserEditResponse request) {
         return new UserResponse(
             user.getId(),

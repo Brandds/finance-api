@@ -6,6 +6,8 @@ import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.multipart;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
@@ -20,6 +22,8 @@ import org.mockito.ArgumentCaptor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpMethod;
+import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.http.MediaType;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.test.context.ContextConfiguration;
@@ -54,6 +58,8 @@ import com.brandon.finance.user.enums.Role;
 import com.brandon.finance.user.mapper.UserMapper;
 import com.brandon.finance.user.repository.UserRepository;
 import com.brandon.finance.user.service.UserService;
+import com.brandon.finance.user.service.UserAvatarService;
+import com.brandon.finance.shared.storage.StorageService;
 
 @WebMvcTest
 @ContextConfiguration(classes = {UserController.class, CategoryController.class, AuthController.class,
@@ -65,14 +71,39 @@ import com.brandon.finance.user.service.UserService;
 class Issue7WebTest {
     @Autowired MockMvc mvc;
     @MockitoBean UserRepository userRepository;
+    @MockitoBean UserAvatarService avatarService;
+    @MockitoBean StorageService avatarStorage;
     @MockitoBean CategoryRepository categoryRepository;
     @MockitoBean EmailVerificationTokenRepository tokenRepository;
     @MockitoBean EmailServiceImpl emailService;
     @MockitoBean JwtService jwtService;
     @MockitoBean PasswordEncoder passwordEncoder;
+    @Test
+    void authenticatedAvatarRoutesBindMultipartAndRequireImage() throws Exception {
+        authenticate("USER");
+        var image = new MockMultipartFile("image", "avatar.png", "image/png", new byte[]{1});
+        mvc.perform(multipart(HttpMethod.PUT, "/api/v1/users/me/avatar").file(image)
+                .param("userId", "43").header(HttpHeaders.AUTHORIZATION, "Bearer valid-token"))
+            .andExpect(status().isOk());
+        verify(avatarService).upload(image);
+
+        mvc.perform(multipart(HttpMethod.PUT, "/api/v1/users/me/avatar")
+                .header(HttpHeaders.AUTHORIZATION, "Bearer valid-token"))
+            .andExpect(status().isBadRequest());
+        mvc.perform(delete("/api/v1/users/me/avatar").header(HttpHeaders.AUTHORIZATION, "Bearer valid-token"))
+            .andExpect(status().isOk());
+        verify(avatarService).delete();
+    }
+
 
     @Test
     void affectedPrivateRoutesRequireAuthentication() throws Exception {
+        mvc.perform(multipart(HttpMethod.PUT, "/api/v1/users/me/avatar")
+                .file(new MockMultipartFile("image", new byte[]{1})))
+            .andExpect(status().isUnauthorized());
+        mvc.perform(delete("/api/v1/users/me/avatar")).andExpect(status().isUnauthorized());
+        verify(avatarService, never()).upload(any());
+        verify(avatarService, never()).delete();
         mvc.perform(get("/api/v1/users/all")).andExpect(status().isUnauthorized());
         mvc.perform(get("/api/v1/users/me")).andExpect(status().isUnauthorized());
         mvc.perform(get("/api/v1/categories/name").param("name", "Food"))

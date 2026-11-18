@@ -7,14 +7,19 @@ import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authorization.AuthorizationDeniedException;
+import org.springframework.web.HttpMediaTypeNotSupportedException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.MissingServletRequestParameterException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+import org.springframework.web.multipart.MaxUploadSizeExceededException;
+import org.springframework.web.multipart.MultipartException;
+import org.springframework.web.multipart.support.MissingServletRequestPartException;
 import org.springframework.web.servlet.NoHandlerFoundException;
 
 import com.brandon.finance.shared.base.enums.ErrorCode;
 import com.brandon.finance.shared.base.excepetion.record.ApiError;
+import com.brandon.finance.shared.storage.StorageUnavailableException;
 
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.extern.slf4j.Slf4j;
@@ -22,6 +27,31 @@ import lombok.extern.slf4j.Slf4j;
 @RestControllerAdvice
 @Slf4j
 public class GlobalExceptionHandler {
+    @ExceptionHandler({MissingServletRequestPartException.class, MultipartException.class})
+    public ResponseEntity<ApiError> handleInvalidMultipart(HttpServletRequest request) {
+        return buildError(HttpStatus.BAD_REQUEST, ErrorCode.VALIDATION_ERROR.name(),
+            "Upload multipart inválido ou parte obrigatória ausente", request);
+    }
+
+    @ExceptionHandler(MaxUploadSizeExceededException.class)
+    public ResponseEntity<ApiError> handleUploadSize(HttpServletRequest request) {
+        return buildError(HttpStatus.PAYLOAD_TOO_LARGE, ErrorCode.VALIDATION_ERROR.name(),
+            "Upload excede o tamanho permitido", request);
+    }
+
+    @ExceptionHandler(HttpMediaTypeNotSupportedException.class)
+    public ResponseEntity<ApiError> handleUnsupportedMedia(HttpServletRequest request) {
+        return buildError(HttpStatus.UNSUPPORTED_MEDIA_TYPE, ErrorCode.VALIDATION_ERROR.name(),
+            "Tipo de conteúdo não aceito", request);
+    }
+
+    @ExceptionHandler(StorageUnavailableException.class)
+    public ResponseEntity<ApiError> handleStorageUnavailable(StorageUnavailableException ex,
+            HttpServletRequest request) {
+        return buildError(HttpStatus.SERVICE_UNAVAILABLE, ErrorCode.INTERNAL_ERROR.name(),
+            ex.getMessage(), request);
+    }
+
 
     @ExceptionHandler(ResourceNotFoundException.class)
     public ResponseEntity<ApiError> handleNotFound(ResourceNotFoundException ex, HttpServletRequest request) {
